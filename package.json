@@ -1,0 +1,16 @@
+{
+  "name": "ayce-example",
+  "version": "0.0.1",
+  "description": "Example project using Ayce",
+  "author": "qysp",
+  "license": "MIT",
+  "scripts": {
+    "start": "serve -l 8080",
+    "build": "tsc --build ./tsconfig.json && rollup ./build/index.js --format iife --name \"counterApp\" --file app.js"
+  },
+  "devDependencies": {
+    "rollup": "^2.40.0",
+    "serve": "^11.3.2",
+    "typescript": "^4.2.3"
+  }
+}
