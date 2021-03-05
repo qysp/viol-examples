@@ -1,7 +1,7 @@
 {
-  "name": "ayce-example",
+  "name": "ayce-examples",
   "version": "0.0.1",
-  "description": "Example project using Ayce",
+  "description": "Some examples using Ayce",
   "author": "qysp",
   "license": "MIT",
   "scripts": {
