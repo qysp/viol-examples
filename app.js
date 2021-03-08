@@ -56,6 +56,11 @@
             yield (id + suffix).toString(36);
     })();
     const uid = () => UidGenerator.next().value;
+    const createFragment = (html) => {
+        const template = document.createElement('template');
+        template.innerHTML = html;
+        return template.content;
+    };
 
     const generateName = (component) => {
         return `${component.constructor.name}_${uid()}`;
@@ -65,11 +70,6 @@
             window.AlpineComponents = {};
         }
         window.AlpineComponents[name] = component;
-    };
-    const createFragment = (html) => {
-        const template = document.createElement('template');
-        template.innerHTML = html;
-        return template.content;
     };
     const createReactivity = (component, state) => {
         return new Proxy(state, {
@@ -96,20 +96,24 @@
             this.props = validateProps(props, this.propTypes);
             this.state = createReactivity(this, { ...this.state });
         }
+        onInit() { }
         __getTemplate() {
-            let html;
-            if (typeof this.template === 'function') {
-                html = this.template({
+            const html = typeof this.template === 'string'
+                ? this.template
+                : this.template({
                     props: this.props,
                     state: this.state,
                     self: this,
                 });
-            }
-            else {
-                html = this.template;
-            }
             const fragment = createFragment(html);
-            fragment.firstElementChild?.setAttribute('x-data', `AlpineComponents['${this.name}']`);
+            const root = fragment.firstElementChild;
+            if (root !== null) {
+                root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
+                let xInit = root.hasAttribute('x-init')
+                    ? `${root.getAttribute('x-init')}; `
+                    : '';
+                root.setAttribute('x-init', xInit + 'onInit()');
+            }
             return [...fragment.children].reduce((markup, child) => {
                 return markup + child.outerHTML;
             }, '');
@@ -128,19 +132,15 @@
         };
     }
     const html = (strings, ...substitutes) => {
-        return (options) => {
+        return (args) => {
             return [...strings].reduce((html, string, index) => {
-                const substitute = substitutes[index];
-                if (substitute instanceof AlpineComponent) {
-                    string += substitute.__getTemplate();
+                let substitute = substitutes[index];
+                if (typeof substitute === 'function') {
+                    substitute = substitute(args);
                 }
-                else if (typeof substitute === 'function') {
-                    const component = substitute(options);
-                    string += component.__getTemplate();
-                }
-                else {
-                    string += substitute;
-                }
+                string += substitute instanceof AlpineComponent
+                    ? substitute.__getTemplate()
+                    : String(substitute);
                 return html + string;
             }, '');
         };
@@ -279,6 +279,9 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
     let MemoryApp = class MemoryApp extends AlpineComponent {
+        onInit() {
+            console.log('Init: Memory App');
+        }
     };
     MemoryApp = __decorate$3([
         Component({
@@ -338,7 +341,6 @@
             propTypes: {
                 id: required(String),
                 tickrate: withDefault(Number, 1000),
-                onDone: Function,
             },
         })
     ], Counter);
@@ -350,6 +352,9 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
     let CounterApp = class CounterApp extends AlpineComponent {
+        onInit() {
+            console.log('Init: Counter App');
+        }
         onDone(name) {
             return () => alert(`${name} -> done!`);
         }

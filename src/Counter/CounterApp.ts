@@ -1,8 +1,8 @@
 import { AlpineComponent, Component, html } from '../../../ayce/lib/index';
 import { Counter } from './Counter';
 
-@Component({
-  template: html<CounterApp>`
+@Component<CounterApp>({
+  template: html`
     <div id="counter-app" class="text-center p-8">
       <h1 class="text-3xl font-bold text-gray-900">Counters</h1>
       <div class="pb-4">
@@ -34,6 +34,10 @@ import { Counter } from './Counter';
   `,
 })
 export class CounterApp extends AlpineComponent {
+  onInit(): void {
+    console.log('Init: Counter App');
+  }
+
   onDone(name: string) {
     return () => alert(`${name} -> done!`);
   }

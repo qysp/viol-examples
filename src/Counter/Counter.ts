@@ -32,7 +32,6 @@ type CounterProps = {
   propTypes: {
     id: required(String),
     tickrate: withDefault(Number, 1000),
-    onDone: Function,
   },
 })
 export class Counter extends AlpineComponent<CounterState, CounterProps> {

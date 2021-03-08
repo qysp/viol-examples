@@ -5,7 +5,7 @@ type FlashMessageState = {
   message: string;
 }
 
-@Component({
+@Component<FlashMessage>({
   template: `
     <div
       x-show.transition.opacity="state.show"

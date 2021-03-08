@@ -9,7 +9,7 @@ type CardGameState = {
   cards: Card[],
 };
 
-@Component({
+@Component<CardGame>({
   template: `
     <div class="px-10 flex items-center justify-center min-h-screen">
       <h1 class="fixed top-0 right-0 p-10 font-bold text-3xl">

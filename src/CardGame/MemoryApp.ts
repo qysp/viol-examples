@@ -10,4 +10,8 @@ import { FlashMessage } from './FlashMessage';
     </div>
   `,
 })
-export class MemoryApp extends AlpineComponent { }
+export class MemoryApp extends AlpineComponent {
+  onInit(): void {
+    console.log('Init: Memory App');
+  }
+}
