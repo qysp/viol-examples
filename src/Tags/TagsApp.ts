@@ -40,7 +40,7 @@ type TagsAppState = {
       </div>
     </div>
   `,
-  style: `
+  styles: `
     .tags-input {
       display: flex;
       flex-wrap: wrap;

@@ -45,7 +45,7 @@ type AppState = {
       </main>
     </div>
   `,
-  style: `
+  styles: `
     #app-nav {
       top: 5px;
     }

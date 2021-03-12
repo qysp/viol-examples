@@ -48,26 +48,34 @@
             this.props = props ?? {};
             this.state = createReactivity(this, { ...this.state });
         }
+        get selector() {
+            return `[x-name="${this.name}"]`;
+        }
         onInit() {
             return () => this.onAfterInit();
         }
         onAfterInit() { }
         [templateSymbol]() {
+            const templateArgs = {
+                props: this.props,
+                state: this.state,
+                self: this,
+            };
             const html = typeof this.template === 'string'
                 ? this.template
-                : this.template({
-                    props: this.props,
-                    state: this.state,
-                    self: this,
-                });
+                : this.template(templateArgs);
+            const styles = typeof this.styles !== 'function'
+                ? this.styles
+                : this.styles(templateArgs);
             const fragment = createFragment(html);
             const root = fragment.firstElementChild;
             if (root !== null) {
+                root.setAttribute('x-name', this.name);
                 root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
                 root.setAttribute('x-init', 'onInit() ? onAfterInit : onAfterInit');
-                if (this.style !== undefined) {
+                if (styles !== undefined) {
                     const styleElement = document.createElement('style');
-                    styleElement.innerHTML = this.style;
+                    styleElement.innerHTML = styles;
                     root.prepend(styleElement);
                 }
             }
@@ -81,7 +89,7 @@
         return (target) => {
             Object.defineProperties(target.prototype, {
                 template: { value: def.template },
-                style: { value: def.style },
+                styles: { value: def.styles },
                 state: { value: def.state ?? {}, writable: true },
             });
         };
@@ -101,6 +109,17 @@
                     string += String(substitute);
                 }
                 return html + string;
+            }, '');
+        };
+    };
+    const css = (strings, ...substitutes) => {
+        return (args) => {
+            return [...strings].reduce((css, string, index) => {
+                let substitute = substitutes[index];
+                if (typeof substitute === 'function') {
+                    substitute = substitute(args);
+                }
+                return css + string + String(substitute);
             }, '');
         };
     };
@@ -131,13 +150,13 @@
       :href="props.url"
       target="_blank"
       rel="noopener noreferrer"
-      class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full top-left-fixed"
+      class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full"
     >
       Source
     </a>
   `,
-            style: `
-    .top-left-fixed {
+            styles: css `
+    ${({ self }) => self.selector} {
       top: 5px;
       left: 5px;
       position: fixed;
@@ -487,7 +506,7 @@
       </div>
     </div>
   `,
-            style: `
+            styles: `
     .tags-input {
       display: flex;
       flex-wrap: wrap;
@@ -610,7 +629,7 @@
       </main>
     </div>
   `,
-            style: `
+            styles: `
     #app-nav {
       top: 5px;
     }

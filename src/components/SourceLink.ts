@@ -1,4 +1,4 @@
-import { AlpineComponent, Component } from '../../../ayce/lib/index';
+import { AlpineComponent, Component, css } from '../../../ayce/lib/index';
 
 type SourceLinkProps = {
   url: string;
@@ -10,13 +10,13 @@ type SourceLinkProps = {
       :href="props.url"
       target="_blank"
       rel="noopener noreferrer"
-      class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full top-left-fixed"
+      class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full"
     >
       Source
     </a>
   `,
-  style: `
-    .top-left-fixed {
+  styles: css`
+    ${({ self }) => self.selector} {
       top: 5px;
       left: 5px;
       position: fixed;
