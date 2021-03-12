@@ -3,6 +3,7 @@ import { AlpineComponent } from '../../ayce/lib/index';
 import { MemoryApp } from './CardGame/MemoryApp';
 import { CounterApp } from './Counter/CounterApp';
 import { NavItem } from './NavItem';
+import { TagsApp } from './Tags/TagsApp';
 
 type AppState = {
   route: string;
@@ -24,6 +25,10 @@ type AppState = {
           onClick: self.onRouteChange('memory'),
           caption: 'Memory Game Example',
         })}
+        ${({ self }) => new NavItem({
+          onClick: self.onRouteChange('tags'),
+          caption: 'Tags Example',
+        })}
       </nav>
       <main id="app-router">
         <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
@@ -34,6 +39,9 @@ type AppState = {
         </template>
         <template x-if="state.route === 'memory'">
           ${new MemoryApp({}, 'MemoryApp')}
+        </template>
+        <template x-if="state.route === 'tags'">
+          ${new TagsApp({}, 'TagsApp')}
         </template>
       </main>
     </div>
