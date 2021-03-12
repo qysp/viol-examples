@@ -2,8 +2,7 @@ import { Component, createApp, html } from '../../ayce/lib/Ayce';
 import { AlpineComponent } from '../../ayce/lib/index';
 import { MemoryApp } from './CardGame/MemoryApp';
 import { CounterApp } from './Counter/CounterApp';
-
-const navButtonClass = 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full';
+import { NavItem } from './NavItem';
 
 type AppState = {
   route: string;
@@ -13,18 +12,27 @@ type AppState = {
   template: html<App>`
     <div id="app" class="p-8">
       <nav id="app-nav" class="text-center">
-        <button @click="state.route = ''" class="${navButtonClass}">Home</button>
-        <button @click="state.route = 'counter'" class="${navButtonClass}">Counter Example</button>
-        <button @click="state.route = 'memory'" class="${navButtonClass}">Memory Game Example</button>
+        ${({ self }) => new NavItem({
+          onClick: self.onRouteChange(''),
+          caption: 'Home',
+        })}
+        ${({ self }) => new NavItem({
+          onClick: self.onRouteChange('counter'),
+          caption: 'Counter Example',
+        })}
+        ${({ self }) => new NavItem({
+          onClick: self.onRouteChange('memory'),
+          caption: 'Memory Game Example',
+        })}
       </nav>
       <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
         Go ahead and click one of those examples above (:
       </p>
       <template x-if="state.route === 'counter'">
-        ${new CounterApp()}
+        ${new CounterApp({}, 'CounterApp')}
       </template>
       <template x-if="state.route === 'memory'">
-        ${new MemoryApp()}
+        ${new MemoryApp({}, 'MemoryApp')}
       </template>
     </div>
   `,
@@ -32,6 +40,13 @@ type AppState = {
     route: '',
   },
 })
-class App extends AlpineComponent<AppState> { }
+class App extends AlpineComponent<AppState> {
+  onRouteChange(route: string) {
+    return () => {
+      console.log('Route changed to:', route);
+      this.state.route = route;
+    }
+  }
+}
 
-createApp(new App(), document.getElementById('root')!);
+createApp(new App({}, 'DemoApp'), document.getElementById('root')!);

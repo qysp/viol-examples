@@ -1,59 +1,9 @@
 (function () {
     'use strict';
 
-    var Mod;
-    (function (Mod) {
-        Mod[Mod["Required"] = 0] = "Required";
-        Mod[Mod["Default"] = 1] = "Default";
-    })(Mod || (Mod = {}));
-
-    const isValidProp = (propValue, propType) => {
-        switch (propType) {
-            case String:
-                return typeof propValue === 'string';
-            case Number:
-                return typeof propValue === 'number';
-            case Boolean:
-                return typeof propValue === 'boolean';
-            case Function:
-                return typeof propValue === 'function';
-            case Array:
-                return Array.isArray(propValue);
-            default:
-                return false;
-        }
-    };
-    const validateProps = (props, propTypes) => {
-        const p = props ?? {};
-        if (propTypes === undefined) {
-            return p;
-        }
-        for (const [prop, propType] of Object.entries(propTypes)) {
-            if (!Object.prototype.hasOwnProperty.call(p, prop)) {
-                if (Array.isArray(propType)) {
-                    const [, mod, defaultValue] = propType;
-                    if (mod === Mod.Required) {
-                        throw new TypeError(`Property '${prop}' is required and does not exist`);
-                    }
-                    if (mod === Mod.Default) {
-                        p[prop] = defaultValue;
-                    }
-                }
-            }
-            else {
-                const type = Array.isArray(propType) ? propType[0] : propType;
-                const propValue = p[prop];
-                if (!isValidProp(propValue, type)) {
-                    throw new TypeError(`Expected property '${prop}' to be of type ${type.name}, got ${typeof propValue}`);
-                }
-            }
-        }
-        return p;
-    };
-
-    const UidGenerator = (function* (id = 0, suffix = Math.random()) {
+    const UidGenerator = (function* (id = 0) {
         while (++id)
-            yield (id + suffix).toString(36);
+            yield (id + Math.random()).toString(36);
     })();
     const uid = () => UidGenerator.next().value;
     const createFragment = (html) => {
@@ -61,13 +11,16 @@
         template.innerHTML = html;
         return template.content;
     };
+    const has = (obj, prop) => {
+        return Object.prototype.hasOwnProperty.call(obj, prop);
+    };
 
     const generateName = (component) => {
         return `${component.constructor.name}_${uid()}`;
     };
     const defineAlpineComponent = (name, component) => {
-        if (!Object.prototype.hasOwnProperty.call(window, 'AlpineComponents')) {
-            window.AlpineComponents = {};
+        if (name in window.AlpineComponents) {
+            throw new Error(`[Ayce] Error: component with name '${name}' already exists!`);
         }
         window.AlpineComponents[name] = component;
     };
@@ -90,13 +43,12 @@
         });
     };
     class AlpineComponent {
-        constructor(props) {
-            this.name = generateName(this);
+        constructor(props, name) {
+            this.name = name ?? generateName(this);
             defineAlpineComponent(this.name, this);
-            this.props = validateProps(props, this.propTypes);
+            this.props = props ?? {};
             this.state = createReactivity(this, { ...this.state });
         }
-        onInit() { }
         __getTemplate() {
             const html = typeof this.template === 'string'
                 ? this.template
@@ -109,10 +61,12 @@
             const root = fragment.firstElementChild;
             if (root !== null) {
                 root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
-                let xInit = root.hasAttribute('x-init')
-                    ? `${root.getAttribute('x-init')}; `
-                    : '';
-                root.setAttribute('x-init', xInit + 'onInit()');
+                if (has(this, 'onInit') && typeof this.onInit === 'function') {
+                    let xInit = root.hasAttribute('x-init')
+                        ? `${root.getAttribute('x-init')}; `
+                        : '';
+                    root.setAttribute('x-init', xInit + 'onInit()');
+                }
             }
             return [...fragment.children].reduce((markup, child) => {
                 return markup + child.outerHTML;
@@ -120,14 +74,11 @@
         }
     }
 
-    const required = (type) => [type, Mod.Required];
-    const withDefault = (type, defaultValue) => [type, Mod.Default, defaultValue];
     function Component(def) {
         return (target) => {
             Object.defineProperties(target.prototype, {
                 template: { value: def.template },
                 state: { value: def.state ?? {}, writable: true },
-                propTypes: { value: def.propTypes ?? {} },
             });
         };
     }
@@ -138,9 +89,13 @@
                 if (typeof substitute === 'function') {
                     substitute = substitute(args);
                 }
-                string += substitute instanceof AlpineComponent
-                    ? substitute.__getTemplate()
-                    : String(substitute);
+                if (substitute instanceof AlpineComponent) {
+                    substitute.parent = args.self;
+                    string += substitute.__getTemplate();
+                }
+                else {
+                    string += String(substitute);
+                }
                 return html + string;
             }, '');
         };
@@ -153,7 +108,29 @@
         };
     };
 
-    var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    if (!('AlpineComponents' in window)) {
+        window.AlpineComponents = {};
+    }
+
+    var __decorate$7 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    let RenderedIn = class RenderedIn extends AlpineComponent {
+    };
+    RenderedIn = __decorate$7([
+        Component({
+            template: `
+    <p class="text-sm text-gray-900 py-4">
+      Rendered in: <strong x-text="props.name"></strong>
+    </p>
+  `,
+        })
+    ], RenderedIn);
+
+    var __decorate$6 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -201,7 +178,7 @@
             return this.flippedCards[0]['color'] === this.flippedCards[1]['color'];
         }
     };
-    CardGame = __decorate$5([
+    CardGame = __decorate$6([
         Component({
             template: `
     <div class="px-10 flex items-center justify-center min-h-screen">
@@ -241,7 +218,7 @@
         })
     ], CardGame);
 
-    var __decorate$4 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -254,7 +231,7 @@
             setTimeout(() => this.state.show = false, 1000);
         }
     };
-    FlashMessage = __decorate$4([
+    FlashMessage = __decorate$5([
         Component({
             template: `
     <div
@@ -272,7 +249,7 @@
         })
     ], FlashMessage);
 
-    var __decorate$3 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var __decorate$4 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -283,10 +260,11 @@
             console.log('Init: Memory App');
         }
     };
-    MemoryApp = __decorate$3([
+    MemoryApp = __decorate$4([
         Component({
             template: html `
-    <div id="memory-app">
+    <div id="memory-app" class="text-center">
+      ${({ self }) => new RenderedIn({ name: self.parent.name })}
       ${new CardGame()}
       ${new FlashMessage()}
     </div>
@@ -294,7 +272,7 @@
         })
     ], MemoryApp);
 
-    var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var __decorate$3 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -311,7 +289,7 @@
                     }
                     this.stop();
                 }
-            }, this.props.tickrate);
+            }, this.props.tickrate ?? 1000);
         }
         stop() {
             if (this.state.intervalId !== null) {
@@ -324,7 +302,7 @@
             this.state.time = 20;
         }
     };
-    Counter = __decorate$2([
+    Counter = __decorate$3([
         Component({
             template: `
     <button
@@ -338,14 +316,10 @@
                 intervalId: null,
                 time: 20,
             },
-            propTypes: {
-                id: required(String),
-                tickrate: withDefault(Number, 1000),
-            },
         })
     ], Counter);
 
-    var __decorate$1 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -359,11 +333,11 @@
             return () => alert(`${name} -> done!`);
         }
     };
-    CounterApp = __decorate$1([
+    CounterApp = __decorate$2([
         Component({
             template: html `
     <div id="counter-app" class="text-center p-8">
-      <h1 class="text-3xl font-bold text-gray-900">Counters</h1>
+      ${({ self }) => new RenderedIn({ name: self.parent.name })}
       <div class="pb-4">
         <label
           for="counter1"
@@ -394,32 +368,66 @@
         })
     ], CounterApp);
 
+    var __decorate$1 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    let NavItem = class NavItem extends AlpineComponent {
+    };
+    NavItem = __decorate$1([
+        Component({
+            template: `
+    <button
+      @click="props.onClick()"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+      x-text="props.caption"
+    ></button>
+  `,
+        })
+    ], NavItem);
+
     var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
-    const navButtonClass = 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full';
     let App = class App extends AlpineComponent {
+        onRouteChange(route) {
+            return () => {
+                console.log('Route changed to:', route);
+                this.state.route = route;
+            };
+        }
     };
     App = __decorate([
         Component({
             template: html `
     <div id="app" class="p-8">
       <nav id="app-nav" class="text-center">
-        <button @click="state.route = ''" class="${navButtonClass}">Home</button>
-        <button @click="state.route = 'counter'" class="${navButtonClass}">Counter Example</button>
-        <button @click="state.route = 'memory'" class="${navButtonClass}">Memory Game Example</button>
+        ${({ self }) => new NavItem({
+            onClick: self.onRouteChange(''),
+            caption: 'Home',
+        })}
+        ${({ self }) => new NavItem({
+            onClick: self.onRouteChange('counter'),
+            caption: 'Counter Example',
+        })}
+        ${({ self }) => new NavItem({
+            onClick: self.onRouteChange('memory'),
+            caption: 'Memory Game Example',
+        })}
       </nav>
       <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
         Go ahead and click one of those examples above (:
       </p>
       <template x-if="state.route === 'counter'">
-        ${new CounterApp()}
+        ${new CounterApp({}, 'CounterApp')}
       </template>
       <template x-if="state.route === 'memory'">
-        ${new MemoryApp()}
+        ${new MemoryApp({}, 'MemoryApp')}
       </template>
     </div>
   `,
@@ -428,6 +436,6 @@
             },
         })
     ], App);
-    createApp(new App(), document.getElementById('root'));
+    createApp(new App({}, 'DemoApp'), document.getElementById('root'));
 
 }());

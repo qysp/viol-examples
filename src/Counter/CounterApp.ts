@@ -1,10 +1,11 @@
 import { AlpineComponent, Component, html } from '../../../ayce/lib/index';
+import { RenderedIn } from '../RenderedIn';
 import { Counter } from './Counter';
 
 @Component<CounterApp>({
   template: html`
     <div id="counter-app" class="text-center p-8">
-      <h1 class="text-3xl font-bold text-gray-900">Counters</h1>
+      ${({ self }) => new RenderedIn({ name: self.parent!.name })}
       <div class="pb-4">
         <label
           for="counter1"

@@ -1,7 +1,5 @@
 import {
   AlpineComponent,
-  required,
-  withDefault,
   Component,
 } from '../../../ayce/lib/index';
 
@@ -29,10 +27,6 @@ type CounterProps = {
     intervalId: null,
     time: 20,
   },
-  propTypes: {
-    id: required(String),
-    tickrate: withDefault(Number, 1000),
-  },
 })
 export class Counter extends AlpineComponent<CounterState, CounterProps> {
   start() {
@@ -45,7 +39,7 @@ export class Counter extends AlpineComponent<CounterState, CounterProps> {
         }
         this.stop();
       }
-    }, this.props.tickrate!);
+    }, this.props.tickrate ?? 1000);
   }
 
   stop() {
