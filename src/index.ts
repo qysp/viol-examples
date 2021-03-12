@@ -1,8 +1,7 @@
-import { Component, createApp, html } from '../../ayce/lib/Ayce';
-import { AlpineComponent } from '../../ayce/lib/index';
+import { AlpineComponent, Component, createApp, html } from '../../ayce/lib/index';
 import { MemoryApp } from './CardGame/MemoryApp';
 import { CounterApp } from './Counter/CounterApp';
-import { NavItem } from './NavItem';
+import { NavItem } from './components/NavItem';
 import { TagsApp } from './Tags/TagsApp';
 
 type AppState = {
@@ -12,7 +11,7 @@ type AppState = {
 @Component({
   template: html<App>`
     <div id="app" class="p-8">
-      <nav id="app-nav" class="text-center">
+      <nav id="app-nav" class="text-center sticky z-10">
         ${({ self }) => new NavItem({
           onClick: self.onRouteChange(''),
           caption: 'Home',
@@ -45,6 +44,11 @@ type AppState = {
         </template>
       </main>
     </div>
+  `,
+  style: `
+    #app-nav {
+      top: 5px;
+    }
   `,
   state: {
     route: '',

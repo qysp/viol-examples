@@ -1,5 +1,4 @@
-import { Component } from "../../ayce/lib/Ayce";
-import { AlpineComponent } from "../../ayce/lib/Component";
+import { AlpineComponent, Component } from "../../../ayce/lib/index";
 
 export type RenderedInProps = {
   name: string;

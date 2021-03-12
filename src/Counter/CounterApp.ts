@@ -1,5 +1,5 @@
 import { AlpineComponent, Component, html } from '../../../ayce/lib/index';
-import { RenderedIn } from '../RenderedIn';
+import { RenderedIn } from '../components/RenderedIn';
 import { Counter } from './Counter';
 
 @Component<CounterApp>({
@@ -7,26 +7,16 @@ import { Counter } from './Counter';
     <div id="counter-app" class="text-center p-8">
       ${({ self }) => new RenderedIn({ name: self.parent!.name })}
       <div class="pb-4">
-        <label
-          for="counter1"
-          class="text-lg font-bold text-gray-900"
-        >
+        <p class="text-lg font-bold text-gray-900 my-4">
           Counter (1s interval)
-        </label>
-        ${({ self }) => new Counter({
-          id: 'counter1',
-          onDone: self.onDone('Counter 1'),
-        })}
+        </p>
+        ${({ self }) => new Counter({ onDone: self.onDone('Counter 1') })}
       </div>
-      <div class="pb-4">
-        <label
-          for="counter2"
-          class="text-lg font-bold text-gray-900"
-        >
+      <div>
+        <p class="text-lg font-bold text-gray-900 my-4">
           Counter (.5s interval)
-        </label>
+        </p>
         ${({ self }) => new Counter({
-          id: 'counter2',
           tickrate: 500,
           onDone: self.onDone('Counter 2'),
         })}

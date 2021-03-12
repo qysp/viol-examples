@@ -1,14 +1,15 @@
-import { Component } from "../../../ayce/lib/Ayce";
-import { AlpineComponent } from "../../../ayce/lib/Component";
+import { AlpineComponent, Component, html } from "../../../ayce/lib/index";
+import { SourceLink } from "../components/SourceLink";
 
 type TagsAppState = {
   tags: string[];
   newTag: string;
 };
 
-@Component({
-  template: `
+@Component<TagsApp>({
+  template: html`
     <div id="tags-app" class="bg-grey-lighter px-8 py-16 min-h-screen">
+      ${new SourceLink({ url: TagsApp.SourceUrl })}
       <template x-for="tag in state.tags">
         <input type="hidden" :value="tag">
       </template>
@@ -109,13 +110,15 @@ type TagsAppState = {
   },
 })
 export class TagsApp extends AlpineComponent<TagsAppState> {
+  static readonly SourceUrl = 'https://github.com/alpinejs/alpine/blob/master/examples/tags.html';
+
   onInit() {
     console.log('Init: Tags App');
   }
 
   addTag() {
-    if (this.state.newTag.trim() !== '') {
-      this.state.tags.push(this.state.newTag.trim());
+    if (this.newTag !== '') {
+      this.state.tags.push(this.newTag);
       this.state.newTag = '';
     }
   }
@@ -125,8 +128,12 @@ export class TagsApp extends AlpineComponent<TagsAppState> {
   }
 
   onBackspace() {
-    if (this.state.newTag.trim() === '') {
+    if (this.newTag === '') {
       this.state.tags.pop();
     }
+  }
+
+  get newTag() {
+    return this.state.newTag.trim();
   }
 }

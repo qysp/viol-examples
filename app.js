@@ -116,25 +116,37 @@
         window.AlpineComponents = {};
     }
 
-    var __decorate$8 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var __decorate$9 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
-    let RenderedIn = class RenderedIn extends AlpineComponent {
+    let SourceLink = class SourceLink extends AlpineComponent {
     };
-    RenderedIn = __decorate$8([
+    SourceLink = __decorate$9([
         Component({
             template: `
-    <p class="text-sm text-gray-900 py-4">
-      Rendered in: <strong x-text="props.name"></strong>
-    </p>
+    <a
+      :href="props.url"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full top-left-fixed"
+    >
+      Source
+    </a>
+  `,
+            style: `
+    .top-left-fixed {
+      top: 5px;
+      left: 5px;
+      position: fixed;
+    }
   `,
         })
-    ], RenderedIn);
+    ], SourceLink);
 
-    var __decorate$7 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var __decorate$8 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -142,7 +154,7 @@
     };
     let CardGame = class CardGame extends AlpineComponent {
         pause(milliseconds = 1000) {
-            return new Promise(resolve => setTimeout(resolve, milliseconds));
+            return new Promise((resolve) => setTimeout(resolve, milliseconds));
         }
         flash(message) {
             window.dispatchEvent(new CustomEvent('flash', {
@@ -150,13 +162,13 @@
             }));
         }
         get flippedCards() {
-            return this.state.cards.filter(card => card.flipped);
+            return this.state.cards.filter((card) => card.flipped);
         }
         get clearedCards() {
-            return this.state.cards.filter(card => card.cleared);
+            return this.state.cards.filter((card) => card.cleared);
         }
         get remainingCards() {
-            return this.state.cards.filter(card => !card.cleared);
+            return this.state.cards.filter((card) => !card.cleared);
         }
         get points() {
             return this.clearedCards.length;
@@ -168,7 +180,7 @@
             if (this.hasMatch()) {
                 this.flash('You found a match!');
                 await this.pause();
-                this.flippedCards.forEach(card => card.cleared = true);
+                this.flippedCards.forEach((card) => card.cleared = true);
                 if (!this.remainingCards.length) {
                     alert('You Won!');
                 }
@@ -176,34 +188,34 @@
             else {
                 await this.pause();
             }
-            this.flippedCards.forEach(card => card.flipped = false);
+            this.flippedCards.forEach((card) => card.flipped = false);
         }
         hasMatch() {
-            return this.flippedCards[0]['color'] === this.flippedCards[1]['color'];
+            const [cardA, cardB] = this.flippedCards;
+            return cardA.color === cardB.color;
         }
     };
-    CardGame = __decorate$7([
+    CardGame = __decorate$8([
         Component({
             template: `
     <div class="px-10 flex items-center justify-center min-h-screen">
       <h1 class="fixed top-0 right-0 p-10 font-bold text-3xl">
-          <span x-text="points"></span>
-          <span class="text-xs">pts</span>
+        <span x-text="points"></span>
+        <span class="text-xs">pts</span>
       </h1>
 
       <div class="flex-1 grid grid-cols-4 gap-10">
-          <template x-for="(card, index) in state.cards" :key="index">
-              <div>
-                  <button
-                    x-show="! card.cleared"
-                    :style="'background: ' + (card.flipped ? card.color : '#999')"
-                    :disabled="flippedCards.length >= 2"
-                    class="w-full h-32"
-                    @click="flipCard(card)"
-                  >
-                  </button>
-              </div>
-          </template>
+        <template x-for="(card, index) in state.cards" :key="index">
+          <div>
+            <button
+              x-show="! card.cleared"
+              :style="'background: ' + (card.flipped ? card.color : '#999')"
+              :disabled="flippedCards.length >= 2"
+              class="w-full h-32"
+              @click="flipCard(card)"
+            ></button>
+          </div>
+        </template>
       </div>
     </div>
   `,
@@ -222,7 +234,7 @@
         })
     ], CardGame);
 
-    var __decorate$6 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var __decorate$7 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -235,7 +247,7 @@
             setTimeout(() => this.state.show = false, 1000);
         }
     };
-    FlashMessage = __decorate$6([
+    FlashMessage = __decorate$7([
         Component({
             template: `
     <div
@@ -253,28 +265,48 @@
         })
     ], FlashMessage);
 
-    var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var __decorate$6 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
-    let MemoryApp = class MemoryApp extends AlpineComponent {
+    var MemoryApp_1;
+    let MemoryApp = MemoryApp_1 = class MemoryApp extends AlpineComponent {
         onInit() {
             console.log('Init: Memory App');
         }
     };
-    MemoryApp = __decorate$5([
+    MemoryApp.SourceUrl = 'https://github.com/alpinejs/alpine/blob/master/examples/card-game.html';
+    MemoryApp = MemoryApp_1 = __decorate$6([
         Component({
             template: html `
     <div id="memory-app" class="text-center">
-      ${({ self }) => new RenderedIn({ name: self.parent.name })}
+      ${new SourceLink({ url: MemoryApp_1.SourceUrl })}
       ${new CardGame()}
       ${new FlashMessage()}
     </div>
   `,
         })
     ], MemoryApp);
+
+    var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    let RenderedIn = class RenderedIn extends AlpineComponent {
+    };
+    RenderedIn = __decorate$5([
+        Component({
+            template: `
+    <p class="text-sm text-gray-900 py-4">
+      Rendered in: <strong x-text="props.name"></strong>
+    </p>
+  `,
+        })
+    ], RenderedIn);
 
     var __decorate$4 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -316,7 +348,6 @@
         Component({
             template: `
     <button
-      :id="props.id"
       x-text="state.time"
       @click="onClick()"
       class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
@@ -352,26 +383,16 @@
     <div id="counter-app" class="text-center p-8">
       ${({ self }) => new RenderedIn({ name: self.parent.name })}
       <div class="pb-4">
-        <label
-          for="counter1"
-          class="text-lg font-bold text-gray-900"
-        >
+        <p class="text-lg font-bold text-gray-900 my-4">
           Counter (1s interval)
-        </label>
-        ${({ self }) => new Counter({
-            id: 'counter1',
-            onDone: self.onDone('Counter 1'),
-        })}
+        </p>
+        ${({ self }) => new Counter({ onDone: self.onDone('Counter 1') })}
       </div>
-      <div class="pb-4">
-        <label
-          for="counter2"
-          class="text-lg font-bold text-gray-900"
-        >
+      <div>
+        <p class="text-lg font-bold text-gray-900 my-4">
           Counter (.5s interval)
-        </label>
+        </p>
         ${({ self }) => new Counter({
-            id: 'counter2',
             tickrate: 500,
             onDone: self.onDone('Counter 2'),
         })}
@@ -407,13 +428,14 @@
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
-    let TagsApp = class TagsApp extends AlpineComponent {
+    var TagsApp_1;
+    let TagsApp = TagsApp_1 = class TagsApp extends AlpineComponent {
         onInit() {
             console.log('Init: Tags App');
         }
         addTag() {
-            if (this.state.newTag.trim() !== '') {
-                this.state.tags.push(this.state.newTag.trim());
+            if (this.newTag !== '') {
+                this.state.tags.push(this.newTag);
                 this.state.newTag = '';
             }
         }
@@ -421,15 +443,20 @@
             this.state.tags = this.state.tags.filter((t) => t !== tag);
         }
         onBackspace() {
-            if (this.state.newTag.trim() === '') {
+            if (this.newTag === '') {
                 this.state.tags.pop();
             }
         }
+        get newTag() {
+            return this.state.newTag.trim();
+        }
     };
-    TagsApp = __decorate$1([
+    TagsApp.SourceUrl = 'https://github.com/alpinejs/alpine/blob/master/examples/tags.html';
+    TagsApp = TagsApp_1 = __decorate$1([
         Component({
-            template: `
+            template: html `
     <div id="tags-app" class="bg-grey-lighter px-8 py-16 min-h-screen">
+      ${new SourceLink({ url: TagsApp_1.SourceUrl })}
       <template x-for="tag in state.tags">
         <input type="hidden" :value="tag">
       </template>
@@ -549,7 +576,7 @@
         Component({
             template: html `
     <div id="app" class="p-8">
-      <nav id="app-nav" class="text-center">
+      <nav id="app-nav" class="text-center sticky z-10">
         ${({ self }) => new NavItem({
             onClick: self.onRouteChange(''),
             caption: 'Home',
@@ -582,6 +609,11 @@
         </template>
       </main>
     </div>
+  `,
+            style: `
+    #app-nav {
+      top: 5px;
+    }
   `,
             state: {
                 route: '',

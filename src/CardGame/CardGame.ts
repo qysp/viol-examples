@@ -13,23 +13,22 @@ type CardGameState = {
   template: `
     <div class="px-10 flex items-center justify-center min-h-screen">
       <h1 class="fixed top-0 right-0 p-10 font-bold text-3xl">
-          <span x-text="points"></span>
-          <span class="text-xs">pts</span>
+        <span x-text="points"></span>
+        <span class="text-xs">pts</span>
       </h1>
 
       <div class="flex-1 grid grid-cols-4 gap-10">
-          <template x-for="(card, index) in state.cards" :key="index">
-              <div>
-                  <button
-                    x-show="! card.cleared"
-                    :style="'background: ' + (card.flipped ? card.color : '#999')"
-                    :disabled="flippedCards.length >= 2"
-                    class="w-full h-32"
-                    @click="flipCard(card)"
-                  >
-                  </button>
-              </div>
-          </template>
+        <template x-for="(card, index) in state.cards" :key="index">
+          <div>
+            <button
+              x-show="! card.cleared"
+              :style="'background: ' + (card.flipped ? card.color : '#999')"
+              :disabled="flippedCards.length >= 2"
+              class="w-full h-32"
+              @click="flipCard(card)"
+            ></button>
+          </div>
+        </template>
       </div>
     </div>
   `,
@@ -48,7 +47,7 @@ type CardGameState = {
 })
 export class CardGame extends AlpineComponent<CardGameState> {
     pause(milliseconds = 1000): Promise<void> {
-      return new Promise(resolve => setTimeout(resolve, milliseconds));
+      return new Promise((resolve) => setTimeout(resolve, milliseconds));
     }
 
     flash(message: string): void {
@@ -58,15 +57,15 @@ export class CardGame extends AlpineComponent<CardGameState> {
     }
 
     get flippedCards() {
-      return this.state.cards.filter(card => card.flipped);
+      return this.state.cards.filter((card) => card.flipped);
     }
 
     get clearedCards() {
-      return this.state.cards.filter(card => card.cleared);
+      return this.state.cards.filter((card) => card.cleared);
     }
 
     get remainingCards() {
-      return this.state.cards.filter(card => !card.cleared);
+      return this.state.cards.filter((card) => !card.cleared);
     }
 
     get points() {
@@ -83,7 +82,7 @@ export class CardGame extends AlpineComponent<CardGameState> {
 
         await this.pause();
 
-        this.flippedCards.forEach(card => card.cleared = true);
+        this.flippedCards.forEach((card) => card.cleared = true);
 
         if (!this.remainingCards.length) {
           alert('You Won!');
@@ -92,10 +91,11 @@ export class CardGame extends AlpineComponent<CardGameState> {
         await this.pause();
       }
 
-      this.flippedCards.forEach(card => card.flipped = false);
+      this.flippedCards.forEach((card) => card.flipped = false);
     }
 
     hasMatch() {
-      return this.flippedCards[0]['color'] === this.flippedCards[1]['color'];
+      const [cardA, cardB] = this.flippedCards;
+      return cardA.color === cardB.color;
     }
 }
