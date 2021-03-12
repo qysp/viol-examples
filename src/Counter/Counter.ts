@@ -19,7 +19,7 @@ type CounterProps = {
     <button
       :id="props.id"
       x-text="state.time"
-      @click="start()"
+      @click="onClick()"
       class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
     ></button>
   `,
@@ -29,6 +29,13 @@ type CounterProps = {
   },
 })
 export class Counter extends AlpineComponent<CounterState, CounterProps> {
+  onClick() {
+    if (this.state.intervalId !== null) {
+      this.stop();
+    }
+    this.start();
+  }
+
   start() {
     --this.state.time;
     this.state.intervalId = setInterval(() => {
@@ -37,7 +44,7 @@ export class Counter extends AlpineComponent<CounterState, CounterProps> {
         if (this.props.onDone !== undefined) {
           this.props.onDone();
         }
-        this.stop();
+        this.reset();
       }
     }, this.props.tickrate ?? 1000);
   }
@@ -47,10 +54,10 @@ export class Counter extends AlpineComponent<CounterState, CounterProps> {
       clearInterval(this.state.intervalId);
       this.state.intervalId = null;
     }
-    this.reset();
   }
 
   reset() {
+    this.stop();
     this.state.time = 20;
   }
 }

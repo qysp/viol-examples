@@ -11,9 +11,8 @@
         template.innerHTML = html;
         return template.content;
     };
-    const has = (obj, prop) => {
-        return Object.prototype.hasOwnProperty.call(obj, prop);
-    };
+
+    const templateSymbol = Symbol('Ayce::Template');
 
     const generateName = (component) => {
         return `${component.constructor.name}_${uid()}`;
@@ -49,7 +48,11 @@
             this.props = props ?? {};
             this.state = createReactivity(this, { ...this.state });
         }
-        __getTemplate() {
+        onInit() {
+            return () => this.onAfterInit();
+        }
+        onAfterInit() { }
+        [templateSymbol]() {
             const html = typeof this.template === 'string'
                 ? this.template
                 : this.template({
@@ -61,12 +64,7 @@
             const root = fragment.firstElementChild;
             if (root !== null) {
                 root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
-                if (has(this, 'onInit') && typeof this.onInit === 'function') {
-                    let xInit = root.hasAttribute('x-init')
-                        ? `${root.getAttribute('x-init')}; `
-                        : '';
-                    root.setAttribute('x-init', xInit + 'onInit()');
-                }
+                root.setAttribute('x-init', 'onInit() ? onAfterInit : onAfterInit');
             }
             return [...fragment.children].reduce((markup, child) => {
                 return markup + child.outerHTML;
@@ -91,7 +89,7 @@
                 }
                 if (substitute instanceof AlpineComponent) {
                     substitute.parent = args.self;
-                    string += substitute.__getTemplate();
+                    string += substitute[templateSymbol]();
                 }
                 else {
                     string += String(substitute);
@@ -104,7 +102,7 @@
         const alpine = window.deferLoadingAlpine ?? ((cb) => cb());
         window.deferLoadingAlpine = (callback) => {
             alpine(callback);
-            root.innerHTML = component.__getTemplate();
+            root.innerHTML = component[templateSymbol]();
         };
     };
 
@@ -279,6 +277,12 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
     let Counter = class Counter extends AlpineComponent {
+        onClick() {
+            if (this.state.intervalId !== null) {
+                this.stop();
+            }
+            this.start();
+        }
         start() {
             --this.state.time;
             this.state.intervalId = setInterval(() => {
@@ -287,7 +291,7 @@
                     if (this.props.onDone !== undefined) {
                         this.props.onDone();
                     }
-                    this.stop();
+                    this.reset();
                 }
             }, this.props.tickrate ?? 1000);
         }
@@ -296,9 +300,9 @@
                 clearInterval(this.state.intervalId);
                 this.state.intervalId = null;
             }
-            this.reset();
         }
         reset() {
+            this.stop();
             this.state.time = 20;
         }
     };
@@ -308,7 +312,7 @@
     <button
       :id="props.id"
       x-text="state.time"
-      @click="start()"
+      @click="onClick()"
       class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
     ></button>
   `,
@@ -328,6 +332,9 @@
     let CounterApp = class CounterApp extends AlpineComponent {
         onInit() {
             console.log('Init: Counter App');
+        }
+        onAfterInit() {
+            console.log('After Init: Counter App');
         }
         onDone(name) {
             return () => alert(`${name} -> done!`);
@@ -420,15 +427,17 @@
             caption: 'Memory Game Example',
         })}
       </nav>
-      <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
-        Go ahead and click one of those examples above (:
-      </p>
-      <template x-if="state.route === 'counter'">
-        ${new CounterApp({}, 'CounterApp')}
-      </template>
-      <template x-if="state.route === 'memory'">
-        ${new MemoryApp({}, 'MemoryApp')}
-      </template>
+      <main id="app-router">
+        <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
+          Go ahead and click one of those examples above (:
+        </p>
+        <template x-if="state.route === 'counter'">
+          ${new CounterApp({}, 'CounterApp')}
+        </template>
+        <template x-if="state.route === 'memory'">
+          ${new MemoryApp({}, 'MemoryApp')}
+        </template>
+      </main>
     </div>
   `,
             state: {

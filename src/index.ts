@@ -25,15 +25,17 @@ type AppState = {
           caption: 'Memory Game Example',
         })}
       </nav>
-      <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
-        Go ahead and click one of those examples above (:
-      </p>
-      <template x-if="state.route === 'counter'">
-        ${new CounterApp({}, 'CounterApp')}
-      </template>
-      <template x-if="state.route === 'memory'">
-        ${new MemoryApp({}, 'MemoryApp')}
-      </template>
+      <main id="app-router">
+        <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
+          Go ahead and click one of those examples above (:
+        </p>
+        <template x-if="state.route === 'counter'">
+          ${new CounterApp({}, 'CounterApp')}
+        </template>
+        <template x-if="state.route === 'memory'">
+          ${new MemoryApp({}, 'MemoryApp')}
+        </template>
+      </main>
     </div>
   `,
   state: {

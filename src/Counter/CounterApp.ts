@@ -35,8 +35,12 @@ import { Counter } from './Counter';
   `,
 })
 export class CounterApp extends AlpineComponent {
-  onInit(): void {
+  onInit() {
     console.log('Init: Counter App');
+  }
+
+  onAfterInit() {
+    console.log('After Init: Counter App');
   }
 
   onDone(name: string) {
