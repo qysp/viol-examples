@@ -8,7 +8,7 @@ type TagsAppState = {
 
 @Component<TagsApp>({
   template: html`
-    <div class="bg-grey-lighter px-8 py-16 min-h-screen">
+    <div class="bg-grey-lighter px-8 py-16">
       ${new SourceLink({ url: TagsApp.SourceUrl })}
       <template x-for="tag in state.tags">
         <input type="hidden" :value="tag">
@@ -97,11 +97,6 @@ type TagsAppState = {
       margin-left: .5rem;
       margin-bottom: .25rem;
       min-width: 10rem;
-    }
-
-    .py-16 {
-      padding-top: 4rem;
-      padding-bottom: 4rem;
     }
   `,
   state: {

@@ -11,7 +11,7 @@ type CardGameState = {
 
 @Component<CardGame>({
   template: `
-    <div class="px-10 flex items-center justify-center min-h-screen">
+    <div class="px-10 flex items-center justify-center">
       <h1 class="fixed top-0 right-0 p-10 font-bold text-3xl">
         <span x-text="points"></span>
         <span class="text-xs">pts</span>

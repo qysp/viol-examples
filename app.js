@@ -1,6 +1,8 @@
 (function () {
     'use strict';
 
+    const templateSymbol = Symbol('Ayce::Template');
+
     const UidGenerator = (function* (id = 0) {
         while (++id)
             yield (id + Math.random()).toString(36);
@@ -11,8 +13,6 @@
         template.innerHTML = html;
         return template.content;
     };
-
-    const templateSymbol = Symbol('Ayce::Template');
 
     const generateName = (component) => {
         return `${component.constructor.name}_${uid()}`;
@@ -27,10 +27,10 @@
         return subject.process(args);
     };
     const defineAlpineComponent = (name, component) => {
-        if (name in window.AlpineComponents) {
+        if (window.AlpineComponents.has(name)) {
             throw new Error(`[Ayce] Error: component with name '${name}' already exists!`);
         }
-        window.AlpineComponents[name] = component;
+        window.AlpineComponents.set(name, component);
     };
     const createReactivity = (component, state) => {
         return new Proxy(state, {
@@ -73,7 +73,7 @@
             const root = fragment.firstElementChild;
             if (root !== null) {
                 root.setAttribute('x-name', this.name);
-                root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
+                root.setAttribute('x-data', `AlpineComponents.get('${this.name}')`);
                 root.setAttribute('x-init', 'onInit() ? onAfterInit : onAfterInit');
                 if (this.styles !== undefined) {
                     const styleElement = document.createElement('style');
@@ -89,6 +89,9 @@
 
     class Processor {
     }
+    const ensureArray = (substitute) => {
+        return Array.isArray(substitute) ? substitute : [substitute];
+    };
     class HtmlProcessor extends Processor {
         constructor(strings, substitutes) {
             super();
@@ -101,12 +104,14 @@
                 if (typeof substitute === 'function') {
                     substitute = substitute(args);
                 }
-                if (substitute instanceof AlpineComponent) {
-                    substitute.parent = args.self;
-                    string += substitute[templateSymbol]();
-                }
-                else {
-                    string += String(substitute);
+                for (const item of ensureArray(substitute)) {
+                    if (item instanceof AlpineComponent) {
+                        item.parent = args.self;
+                        string += item[templateSymbol]();
+                    }
+                    else {
+                        string += String(item);
+                    }
                 }
                 return html + string;
             }, '');
@@ -159,7 +164,7 @@
     };
 
     if (!('AlpineComponents' in window)) {
-        window.AlpineComponents = {};
+        window.AlpineComponents = new Map();
     }
 
     var __decorate$9 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
@@ -244,7 +249,7 @@
     CardGame = __decorate$8([
         Component({
             template: `
-    <div class="px-10 flex items-center justify-center min-h-screen">
+    <div class="px-10 flex items-center justify-center">
       <h1 class="fixed top-0 right-0 p-10 font-bold text-3xl">
         <span x-text="points"></span>
         <span class="text-xs">pts</span>
@@ -327,7 +332,7 @@
     MemoryApp = MemoryApp_1 = __decorate$6([
         Component({
             template: html `
-    <div class="text-center">
+    <div class="text-center py-16">
       ${new SourceLink({ url: MemoryApp_1.SourceUrl })}
       ${new CardGame()}
       ${new FlashMessage()}
@@ -426,7 +431,7 @@
     CounterApp = __decorate$3([
         Component({
             template: ({ self }) => html `
-    <div class="text-center p-8">
+    <div class="text-center">
       ${new RenderedIn({ name: self.parent.name })}
       <div class="pb-4">
         <p class="text-lg font-bold text-gray-900 my-4">
@@ -458,7 +463,7 @@
             template: `
     <button
       @click="props.onClick()"
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mr-1"
       x-text="props.caption"
     ></button>
   `,
@@ -498,7 +503,7 @@
     TagsApp = TagsApp_1 = __decorate$1([
         Component({
             template: html `
-    <div class="bg-grey-lighter px-8 py-16 min-h-screen">
+    <div class="bg-grey-lighter px-8 py-16">
       ${new SourceLink({ url: TagsApp_1.SourceUrl })}
       <template x-for="tag in state.tags">
         <input type="hidden" :value="tag">
@@ -588,11 +593,6 @@
       margin-bottom: .25rem;
       min-width: 10rem;
     }
-
-    .py-16 {
-      padding-top: 4rem;
-      padding-bottom: 4rem;
-    }
   `,
             state: {
                 tags: ['hey'],
@@ -607,6 +607,12 @@
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
+    const routes = [
+        { path: '', caption: 'Home' },
+        { path: 'counter', caption: 'Counter' },
+        { path: 'memory', caption: 'Memory Game' },
+        { path: 'tags', caption: 'Tags' },
+    ];
     let App = class App extends AlpineComponent {
         onRouteChange(route) {
             return () => {
@@ -619,26 +625,14 @@
         Component({
             template: ({ self }) => html `
     <div class="p-8">
-      <nav class="text-center sticky z-10">
-        ${new NavItem({
-            onClick: self.onRouteChange(''),
-            caption: 'Home',
-        })}
-        ${new NavItem({
-            onClick: self.onRouteChange('counter'),
-            caption: 'Counter Example',
-        })}
-        ${new NavItem({
-            onClick: self.onRouteChange('memory'),
-            caption: 'Memory Game Example',
-        })}
-        ${new NavItem({
-            onClick: self.onRouteChange('tags'),
-            caption: 'Tags Example',
-        })}
+      <nav class="text-center">
+        ${routes.map(({ path, caption }) => new NavItem({
+            onClick: self.onRouteChange(path),
+            caption,
+        }))}
       </nav>
-      <main>
-        <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
+      <main class="py-8">
+        <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900">
           Go ahead and click one of those examples above (:
         </p>
         <template x-if="state.route === 'counter'">
@@ -652,11 +646,6 @@
         </template>
       </main>
     </div>
-  `,
-            styles: ({ self }) => css `
-    ${self} > nav {
-      top: 5px;
-    }
   `,
             state: {
                 route: '',

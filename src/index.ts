@@ -1,4 +1,4 @@
-import { AlpineComponent, Component, createApp, css, html } from '../../ayce/lib/index';
+import { AlpineComponent, Component, createApp, html } from '../../ayce/lib/index';
 import { MemoryApp } from './CardGame/MemoryApp';
 import { CounterApp } from './Counter/CounterApp';
 import { NavItem } from './components/NavItem';
@@ -8,29 +8,24 @@ type AppState = {
   route: string;
 };
 
+const routes = [
+  { path: '', caption: 'Home' },
+  { path: 'counter', caption: 'Counter' },
+  { path: 'memory', caption: 'Memory Game' },
+  { path: 'tags', caption: 'Tags' },
+];
+
 @Component<App>({
   template: ({ self }) => html`
     <div class="p-8">
-      <nav class="text-center sticky z-10">
-        ${new NavItem({
-          onClick: self.onRouteChange(''),
-          caption: 'Home',
-        })}
-        ${new NavItem({
-          onClick: self.onRouteChange('counter'),
-          caption: 'Counter Example',
-        })}
-        ${new NavItem({
-          onClick: self.onRouteChange('memory'),
-          caption: 'Memory Game Example',
-        })}
-        ${new NavItem({
-          onClick: self.onRouteChange('tags'),
-          caption: 'Tags Example',
-        })}
+      <nav class="text-center">
+        ${routes.map(({ path, caption }) => new NavItem({
+          onClick: self.onRouteChange(path),
+          caption,
+        }))}
       </nav>
-      <main>
-        <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
+      <main class="py-8">
+        <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900">
           Go ahead and click one of those examples above (:
         </p>
         <template x-if="state.route === 'counter'">
@@ -44,11 +39,6 @@ type AppState = {
         </template>
       </main>
     </div>
-  `,
-  styles: ({ self }) => css`
-    ${self} > nav {
-      top: 5px;
-    }
   `,
   state: {
     route: '',

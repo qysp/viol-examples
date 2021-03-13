@@ -4,7 +4,7 @@ import { Counter } from './Counter';
 
 @Component<CounterApp>({
   template: ({ self }) => html`
-    <div class="text-center p-8">
+    <div class="text-center">
       ${new RenderedIn({ name: self.parent!.name })}
       <div class="pb-4">
         <p class="text-lg font-bold text-gray-900 my-4">

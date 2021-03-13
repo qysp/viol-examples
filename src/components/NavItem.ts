@@ -9,7 +9,7 @@ export type NavItemProps = {
   template: `
     <button
       @click="props.onClick()"
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mr-1"
       x-text="props.caption"
     ></button>
   `,
