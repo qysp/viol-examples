@@ -1,4 +1,4 @@
-import { AlpineComponent, Component } from "../../../ayce/lib/index";
+import { AyceComponent, Component } from "../../../ayce/lib/index";
 
 export type NavItemProps = {
   onClick: Function;
@@ -14,4 +14,4 @@ export type NavItemProps = {
     ></button>
   `,
 })
-export class NavItem extends AlpineComponent<{}, NavItemProps> { }
+export class NavItem extends AyceComponent<{}, NavItemProps> { }

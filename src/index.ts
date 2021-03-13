@@ -1,4 +1,4 @@
-import { AlpineComponent, Component, createApp, html } from '../../ayce/lib/index';
+import { AyceComponent, Component, createApp, html } from '../../ayce/lib/index';
 import { MemoryApp } from './CardGame/MemoryApp';
 import { CounterApp } from './Counter/CounterApp';
 import { NavItem } from './components/NavItem';
@@ -44,7 +44,7 @@ const routes = [
     route: '',
   },
 })
-class App extends AlpineComponent<AppState> {
+class App extends AyceComponent<AppState> {
   onRouteChange(route: string) {
     return () => {
       console.log('Route changed to:', route);

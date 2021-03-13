@@ -1,5 +1,5 @@
 import {
-  AlpineComponent,
+  AyceComponent,
   Component,
 } from '../../../ayce/lib/index';
 
@@ -26,7 +26,7 @@ type CounterProps = {
     time: 20,
   },
 })
-export class Counter extends AlpineComponent<CounterState, CounterProps> {
+export class Counter extends AyceComponent<CounterState, CounterProps> {
   onClick() {
     if (this.state.intervalId !== null) {
       this.stop();

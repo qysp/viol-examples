@@ -1,4 +1,4 @@
-import { AlpineComponent, Component, html } from "../../../ayce/lib/index";
+import { AyceComponent, Component, html } from "../../../ayce/lib/index";
 import { SourceLink } from "../components/SourceLink";
 
 type TagsAppState = {
@@ -104,7 +104,7 @@ type TagsAppState = {
     newTag: '',
   },
 })
-export class TagsApp extends AlpineComponent<TagsAppState> {
+export class TagsApp extends AyceComponent<TagsAppState> {
   static readonly SourceUrl = 'https://github.com/alpinejs/alpine/blob/master/examples/tags.html';
 
   onInit() {

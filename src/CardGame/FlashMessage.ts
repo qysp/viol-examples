@@ -1,4 +1,4 @@
-import { AlpineComponent, Component } from '../../../ayce/lib/index';
+import { AyceComponent, Component } from '../../../ayce/lib/index';
 
 type FlashMessageState = {
   show: boolean;
@@ -20,7 +20,7 @@ type FlashMessageState = {
     message: '',
   },
 })
-export class FlashMessage extends AlpineComponent<FlashMessageState> {
+export class FlashMessage extends AyceComponent<FlashMessageState> {
   onFlash($event: CustomEvent<{ message: string }>) {
     this.state.message = $event.detail.message;
     this.state.show = true;

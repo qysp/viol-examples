@@ -1,4 +1,4 @@
-import { AlpineComponent, Component, css } from '../../../ayce/lib/index';
+import { AyceComponent, Component, css } from '../../../ayce/lib/index';
 
 type SourceLinkProps = {
   url: string;
@@ -23,4 +23,4 @@ type SourceLinkProps = {
     }
   `,
 })
-export class SourceLink extends AlpineComponent<{}, SourceLinkProps> { }
+export class SourceLink extends AyceComponent<{}, SourceLinkProps> { }

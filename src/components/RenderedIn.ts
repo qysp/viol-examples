@@ -1,4 +1,4 @@
-import { AlpineComponent, Component } from "../../../ayce/lib/index";
+import { AyceComponent, Component } from "../../../ayce/lib/index";
 
 export type RenderedInProps = {
   name: string;
@@ -11,4 +11,4 @@ export type RenderedInProps = {
     </p>
   `,
 })
-export class RenderedIn extends AlpineComponent<{}, RenderedInProps> { }
+export class RenderedIn extends AyceComponent<{}, RenderedInProps> { }

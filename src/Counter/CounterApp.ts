@@ -1,4 +1,4 @@
-import { AlpineComponent, Component, html } from '../../../ayce/lib/index';
+import { AyceComponent, Component, html } from '../../../ayce/lib/index';
 import { RenderedIn } from '../components/RenderedIn';
 import { Counter } from './Counter';
 
@@ -21,7 +21,7 @@ import { Counter } from './Counter';
     </div>
   `,
 })
-export class CounterApp extends AlpineComponent {
+export class CounterApp extends AyceComponent {
   onInit() {
     console.log('Init: Counter App');
   }

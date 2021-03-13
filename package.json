@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "serve -l 8080",
-    "build": "tsc --build ./tsconfig.json && rollup ./build/index.js --format iife --name \"counterApp\" --file app.js"
+    "build": "tsc --build ./tsconfig.json && rollup ./build/index.js --format iife --name \"ExamplesApp\" --file app.js"
   },
   "devDependencies": {
     "rollup": "^2.40.0",

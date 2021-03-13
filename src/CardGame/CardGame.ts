@@ -1,5 +1,5 @@
 import {
-  AlpineComponent,
+  AyceComponent,
   Component,
 } from '../../../ayce/lib/index';
 
@@ -45,7 +45,7 @@ type CardGameState = {
     ].sort(() => Math.random() - .5),
   },
 })
-export class CardGame extends AlpineComponent<CardGameState> {
+export class CardGame extends AyceComponent<CardGameState> {
     pause(milliseconds = 1000): Promise<void> {
       return new Promise((resolve) => setTimeout(resolve, milliseconds));
     }

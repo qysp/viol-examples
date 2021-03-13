@@ -1,4 +1,4 @@
-import { AlpineComponent, Component, html } from '../../../ayce/lib/index';
+import { AyceComponent, Component, html } from '../../../ayce/lib/index';
 import { SourceLink } from '../components/SourceLink';
 import { CardGame } from './CardGame';
 import { FlashMessage } from './FlashMessage';
@@ -12,7 +12,7 @@ import { FlashMessage } from './FlashMessage';
     </div>
   `,
 })
-export class MemoryApp extends AlpineComponent {
+export class MemoryApp extends AyceComponent {
   static readonly SourceUrl = 'https://github.com/alpinejs/alpine/blob/master/examples/card-game.html';
 
   onInit(): void {
