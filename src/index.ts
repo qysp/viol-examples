@@ -3,6 +3,7 @@ import { MemoryApp } from './CardGame/MemoryApp';
 import { CounterApp } from './Counter/CounterApp';
 import { NavItem } from './components/NavItem';
 import { TagsApp } from './Tags/TagsApp';
+import { ScopedCssApp } from './ScopedCss/ScopedCssApp';
 
 type AppState = {
   route: string;
@@ -11,6 +12,7 @@ type AppState = {
 const routes = [
   { path: '', caption: 'Home' },
   { path: 'counter', caption: 'Counter' },
+  { path: 'scopedCss', caption: 'Scoped CSS' },
   { path: 'memory', caption: 'Memory Game' },
   { path: 'tags', caption: 'Tags' },
 ];
@@ -30,6 +32,9 @@ const routes = [
         </p>
         <template x-if="state.route === 'counter'">
           ${new CounterApp({}, 'CounterApp')}
+        </template>
+        <template x-if="state.route === 'scopedCss'">
+          ${new ScopedCssApp({}, 'ScopedCssApp')}
         </template>
         <template x-if="state.route === 'memory'">
           ${new MemoryApp({}, 'MemoryApp')}
