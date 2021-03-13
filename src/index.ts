@@ -1,4 +1,4 @@
-import { AlpineComponent, Component, createApp, html } from '../../ayce/lib/index';
+import { AlpineComponent, Component, createApp, css, html } from '../../ayce/lib/index';
 import { MemoryApp } from './CardGame/MemoryApp';
 import { CounterApp } from './Counter/CounterApp';
 import { NavItem } from './components/NavItem';
@@ -8,28 +8,28 @@ type AppState = {
   route: string;
 };
 
-@Component({
-  template: html<App>`
-    <div id="app" class="p-8">
-      <nav id="app-nav" class="text-center sticky z-10">
-        ${({ self }) => new NavItem({
+@Component<App>({
+  template: ({ self }) => html`
+    <div class="p-8">
+      <nav class="text-center sticky z-10">
+        ${new NavItem({
           onClick: self.onRouteChange(''),
           caption: 'Home',
         })}
-        ${({ self }) => new NavItem({
+        ${new NavItem({
           onClick: self.onRouteChange('counter'),
           caption: 'Counter Example',
         })}
-        ${({ self }) => new NavItem({
+        ${new NavItem({
           onClick: self.onRouteChange('memory'),
           caption: 'Memory Game Example',
         })}
-        ${({ self }) => new NavItem({
+        ${new NavItem({
           onClick: self.onRouteChange('tags'),
           caption: 'Tags Example',
         })}
       </nav>
-      <main id="app-router">
+      <main>
         <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
           Go ahead and click one of those examples above (:
         </p>
@@ -45,8 +45,8 @@ type AppState = {
       </main>
     </div>
   `,
-  styles: `
-    #app-nav {
+  styles: ({ self }) => css`
+    ${self} > nav {
       top: 5px;
     }
   `,

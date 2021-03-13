@@ -15,8 +15,8 @@ type SourceLinkProps = {
       Source
     </a>
   `,
-  styles: css`
-    ${({ self }) => self.selector} {
+  styles: ({ self }) => css`
+    ${self} {
       top: 5px;
       left: 5px;
       position: fixed;

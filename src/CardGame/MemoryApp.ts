@@ -5,7 +5,7 @@ import { FlashMessage } from './FlashMessage';
 
 @Component<MemoryApp>({
   template: html`
-    <div id="memory-app" class="text-center">
+    <div class="text-center">
       ${new SourceLink({ url: MemoryApp.SourceUrl })}
       ${new CardGame()}
       ${new FlashMessage()}

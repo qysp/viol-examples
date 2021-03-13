@@ -3,23 +3,20 @@ import { RenderedIn } from '../components/RenderedIn';
 import { Counter } from './Counter';
 
 @Component<CounterApp>({
-  template: html`
-    <div id="counter-app" class="text-center p-8">
-      ${({ self }) => new RenderedIn({ name: self.parent!.name })}
+  template: ({ self }) => html`
+    <div class="text-center p-8">
+      ${new RenderedIn({ name: self.parent!.name })}
       <div class="pb-4">
         <p class="text-lg font-bold text-gray-900 my-4">
           Counter (1s interval)
         </p>
-        ${({ self }) => new Counter({ onDone: self.onDone('Counter 1') })}
+        ${new Counter({ onDone: self.onDone('Counter 1') })}
       </div>
       <div>
         <p class="text-lg font-bold text-gray-900 my-4">
           Counter (.5s interval)
         </p>
-        ${({ self }) => new Counter({
-          tickrate: 500,
-          onDone: self.onDone('Counter 2'),
-        })}
+        ${new Counter({ onDone: self.onDone('Counter 2'), tickrate: 500 })}
       </div>
     </div>
   `,

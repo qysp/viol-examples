@@ -17,6 +17,15 @@
     const generateName = (component) => {
         return `${component.constructor.name}_${uid()}`;
     };
+    const process = (subject, args) => {
+        if (typeof subject === 'function') {
+            subject = subject(args);
+        }
+        if (typeof subject === 'string') {
+            return subject;
+        }
+        return subject.process(args);
+    };
     const defineAlpineComponent = (name, component) => {
         if (name in window.AlpineComponents) {
             throw new Error(`[Ayce] Error: component with name '${name}' already exists!`);
@@ -44,38 +53,31 @@
     class AlpineComponent {
         constructor(props, name) {
             this.name = name ?? generateName(this);
+            this.selector = `[x-name="${this.name}"]`;
             defineAlpineComponent(this.name, this);
             this.props = props ?? {};
             this.state = createReactivity(this, { ...this.state });
-        }
-        get selector() {
-            return `[x-name="${this.name}"]`;
         }
         onInit() {
             return () => this.onAfterInit();
         }
         onAfterInit() { }
         [templateSymbol]() {
-            const templateArgs = {
+            const substituteArgs = {
                 props: this.props,
                 state: this.state,
                 self: this,
             };
-            const html = typeof this.template === 'string'
-                ? this.template
-                : this.template(templateArgs);
-            const styles = typeof this.styles !== 'function'
-                ? this.styles
-                : this.styles(templateArgs);
+            const html = process(this.template, substituteArgs);
             const fragment = createFragment(html);
             const root = fragment.firstElementChild;
             if (root !== null) {
                 root.setAttribute('x-name', this.name);
                 root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
                 root.setAttribute('x-init', 'onInit() ? onAfterInit : onAfterInit');
-                if (styles !== undefined) {
+                if (this.styles !== undefined) {
                     const styleElement = document.createElement('style');
-                    styleElement.innerHTML = styles;
+                    styleElement.innerHTML = process(this.styles, substituteArgs);
                     root.prepend(styleElement);
                 }
             }
@@ -85,19 +87,17 @@
         }
     }
 
-    function Component(def) {
-        return (target) => {
-            Object.defineProperties(target.prototype, {
-                template: { value: def.template },
-                styles: { value: def.styles },
-                state: { value: def.state ?? {}, writable: true },
-            });
-        };
+    class Processor {
     }
-    const html = (strings, ...substitutes) => {
-        return (args) => {
-            return [...strings].reduce((html, string, index) => {
-                let substitute = substitutes[index];
+    class HtmlProcessor extends Processor {
+        constructor(strings, substitutes) {
+            super();
+            this.strings = strings;
+            this.substitutes = substitutes;
+        }
+        process(args) {
+            return this.strings.reduce((html, string, index) => {
+                let substitute = this.substitutes[index] ?? '';
                 if (typeof substitute === 'function') {
                     substitute = substitute(args);
                 }
@@ -110,18 +110,45 @@
                 }
                 return html + string;
             }, '');
-        };
-    };
-    const css = (strings, ...substitutes) => {
-        return (args) => {
-            return [...strings].reduce((css, string, index) => {
-                let substitute = substitutes[index];
+        }
+    }
+    class CssProcessor extends Processor {
+        constructor(strings, substitutes) {
+            super();
+            this.strings = strings;
+            this.substitutes = substitutes;
+        }
+        process(args) {
+            return this.strings.reduce((css, string, index) => {
+                let substitute = this.substitutes[index] ?? '';
                 if (typeof substitute === 'function') {
                     substitute = substitute(args);
                 }
-                return css + string + String(substitute);
+                string += substitute instanceof AlpineComponent
+                    ? substitute.selector
+                    : String(substitute);
+                return css + string;
             }, '');
+        }
+    }
+
+    function Component(def) {
+        return (target) => {
+            Object.defineProperties(target.prototype, {
+                template: { value: def.template },
+                styles: { value: def.styles },
+                state: {
+                    value: def.state ?? {},
+                    writable: true,
+                },
+            });
         };
+    }
+    const html = (strings, ...substitutes) => {
+        return new HtmlProcessor([...strings], substitutes);
+    };
+    const css = (strings, ...substitutes) => {
+        return new CssProcessor([...strings], substitutes);
     };
     const createApp = (component, root) => {
         const alpine = window.deferLoadingAlpine ?? ((cb) => cb());
@@ -155,8 +182,8 @@
       Source
     </a>
   `,
-            styles: css `
-    ${({ self }) => self.selector} {
+            styles: ({ self }) => css `
+    ${self} {
       top: 5px;
       left: 5px;
       position: fixed;
@@ -300,7 +327,7 @@
     MemoryApp = MemoryApp_1 = __decorate$6([
         Component({
             template: html `
-    <div id="memory-app" class="text-center">
+    <div class="text-center">
       ${new SourceLink({ url: MemoryApp_1.SourceUrl })}
       ${new CardGame()}
       ${new FlashMessage()}
@@ -398,23 +425,20 @@
     };
     CounterApp = __decorate$3([
         Component({
-            template: html `
-    <div id="counter-app" class="text-center p-8">
-      ${({ self }) => new RenderedIn({ name: self.parent.name })}
+            template: ({ self }) => html `
+    <div class="text-center p-8">
+      ${new RenderedIn({ name: self.parent.name })}
       <div class="pb-4">
         <p class="text-lg font-bold text-gray-900 my-4">
           Counter (1s interval)
         </p>
-        ${({ self }) => new Counter({ onDone: self.onDone('Counter 1') })}
+        ${new Counter({ onDone: self.onDone('Counter 1') })}
       </div>
       <div>
         <p class="text-lg font-bold text-gray-900 my-4">
           Counter (.5s interval)
         </p>
-        ${({ self }) => new Counter({
-            tickrate: 500,
-            onDone: self.onDone('Counter 2'),
-        })}
+        ${new Counter({ onDone: self.onDone('Counter 2'), tickrate: 500 })}
       </div>
     </div>
   `,
@@ -474,7 +498,7 @@
     TagsApp = TagsApp_1 = __decorate$1([
         Component({
             template: html `
-    <div id="tags-app" class="bg-grey-lighter px-8 py-16 min-h-screen">
+    <div class="bg-grey-lighter px-8 py-16 min-h-screen">
       ${new SourceLink({ url: TagsApp_1.SourceUrl })}
       <template x-for="tag in state.tags">
         <input type="hidden" :value="tag">
@@ -593,27 +617,27 @@
     };
     App = __decorate([
         Component({
-            template: html `
-    <div id="app" class="p-8">
-      <nav id="app-nav" class="text-center sticky z-10">
-        ${({ self }) => new NavItem({
+            template: ({ self }) => html `
+    <div class="p-8">
+      <nav class="text-center sticky z-10">
+        ${new NavItem({
             onClick: self.onRouteChange(''),
             caption: 'Home',
         })}
-        ${({ self }) => new NavItem({
+        ${new NavItem({
             onClick: self.onRouteChange('counter'),
             caption: 'Counter Example',
         })}
-        ${({ self }) => new NavItem({
+        ${new NavItem({
             onClick: self.onRouteChange('memory'),
             caption: 'Memory Game Example',
         })}
-        ${({ self }) => new NavItem({
+        ${new NavItem({
             onClick: self.onRouteChange('tags'),
             caption: 'Tags Example',
         })}
       </nav>
-      <main id="app-router">
+      <main>
         <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900 pt-16">
           Go ahead and click one of those examples above (:
         </p>
@@ -629,8 +653,8 @@
       </main>
     </div>
   `,
-            styles: `
-    #app-nav {
+            styles: ({ self }) => css `
+    ${self} > nav {
       top: 5px;
     }
   `,
