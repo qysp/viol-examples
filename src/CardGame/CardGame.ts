@@ -1,7 +1,7 @@
 import {
   AyceComponent,
   Component,
-} from '../../../ayce/lib/index';
+} from 'ayce';
 
 type Card = { color: string, flipped: boolean, cleared: boolean };
 

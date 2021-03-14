@@ -1,4 +1,4 @@
-import { AyceComponent, Component } from '../../../ayce/lib/index';
+import { AyceComponent, Component } from 'ayce';
 
 type FlashMessageState = {
   show: boolean;

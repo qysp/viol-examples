@@ -1,6 +1,28 @@
 (function () {
     'use strict';
 
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation.
+
+    Permission to use, copy, modify, and/or distribute this software for any
+    purpose with or without fee is hereby granted.
+
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+    PERFORMANCE OF THIS SOFTWARE.
+    ***************************************************************************** */
+
+    function __decorate(decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    }
+
     const templateSymbol = Symbol('Ayce::Template');
 
     const UidGenerator = (function* (id = 0) {
@@ -52,11 +74,11 @@
     };
     class AyceComponent {
         constructor(props, name) {
-            this.name = name ?? generateName(this);
+            this.name = name !== null && name !== void 0 ? name : generateName(this);
             this.selector = `[x-name="${this.name}"]`;
             defineAyceComponent(this.name, this);
-            this.props = props ?? {};
-            this.state = createReactivity(this, { ...this.state });
+            this.props = props !== null && props !== void 0 ? props : {};
+            this.state = createReactivity(this, Object.assign({}, this.state));
         }
         [templateSymbol]() {
             const substituteArgs = {
@@ -95,7 +117,8 @@
         }
         process(args) {
             return this.strings.reduce((html, string, index) => {
-                let substitute = this.substitutes[index] ?? '';
+                var _a;
+                let substitute = (_a = this.substitutes[index]) !== null && _a !== void 0 ? _a : '';
                 if (typeof substitute === 'function') {
                     substitute = substitute(args);
                 }
@@ -120,7 +143,8 @@
         }
         process(args) {
             return this.strings.reduce((css, string, index) => {
-                let substitute = this.substitutes[index] ?? '';
+                var _a;
+                let substitute = (_a = this.substitutes[index]) !== null && _a !== void 0 ? _a : '';
                 if (typeof substitute === 'function') {
                     substitute = substitute(args);
                 }
@@ -134,11 +158,12 @@
 
     function Component(def) {
         return (target) => {
+            var _a;
             Object.defineProperties(target.prototype, {
                 template: { value: def.template },
                 styles: { value: def.styles },
                 state: {
-                    value: def.state ?? {},
+                    value: (_a = def.state) !== null && _a !== void 0 ? _a : {},
                     writable: true,
                 },
             });
@@ -151,7 +176,8 @@
         return new CssProcessor([...strings], substitutes);
     };
     const createApp = (component, root) => {
-        const alpine = window.deferLoadingAlpine ?? ((cb) => cb());
+        var _a;
+        const alpine = (_a = window.deferLoadingAlpine) !== null && _a !== void 0 ? _a : ((cb) => cb());
         window.deferLoadingAlpine = (callback) => {
             alpine(callback);
             root.innerHTML = component[templateSymbol]();
@@ -172,16 +198,16 @@
         window.AyceComponents = new Map();
     }
 
-    var __decorate$b = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    var AyceComponent_1 = AyceComponent;
+    var Component_1 = Component;
+    var createApp_1 = createApp;
+    var css_1 = css;
+    var html_1 = html;
+
+    let SourceLink = class SourceLink extends AyceComponent_1 {
     };
-    let SourceLink = class SourceLink extends AyceComponent {
-    };
-    SourceLink = __decorate$b([
-        Component({
+    SourceLink = __decorate([
+        Component_1({
             template: `
     <a
       :href="props.url"
@@ -192,7 +218,7 @@
       Source
     </a>
   `,
-            styles: ({ self }) => css `
+            styles: ({ self }) => css_1 `
     ${self} {
       top: 5px;
       left: 5px;
@@ -202,13 +228,7 @@
         })
     ], SourceLink);
 
-    var __decorate$a = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    let CardGame = class CardGame extends AyceComponent {
+    let CardGame = class CardGame extends AyceComponent_1 {
         pause(milliseconds = 1000) {
             return new Promise((resolve) => setTimeout(resolve, milliseconds));
         }
@@ -251,8 +271,8 @@
             return cardA.color === cardB.color;
         }
     };
-    CardGame = __decorate$a([
-        Component({
+    CardGame = __decorate([
+        Component_1({
             template: `
     <div class="px-10 flex items-center justify-center">
       <h1 class="fixed top-0 right-0 p-10 font-bold text-3xl">
@@ -290,21 +310,15 @@
         })
     ], CardGame);
 
-    var __decorate$9 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    let FlashMessage = class FlashMessage extends AyceComponent {
+    let FlashMessage = class FlashMessage extends AyceComponent_1 {
         onFlash($event) {
             this.state.message = $event.detail.message;
             this.state.show = true;
             setTimeout(() => this.state.show = false, 1000);
         }
     };
-    FlashMessage = __decorate$9([
-        Component({
+    FlashMessage = __decorate([
+        Component_1({
             template: `
     <div
       x-show.transition.opacity="state.show"
@@ -321,22 +335,16 @@
         })
     ], FlashMessage);
 
-    var __decorate$8 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
     var MemoryApp_1;
-    let MemoryApp = MemoryApp_1 = class MemoryApp extends AyceComponent {
+    let MemoryApp = MemoryApp_1 = class MemoryApp extends AyceComponent_1 {
         onInit() {
             console.log('Init: Memory App');
         }
     };
     MemoryApp.SourceUrl = 'https://github.com/alpinejs/alpine/blob/master/examples/card-game.html';
-    MemoryApp = MemoryApp_1 = __decorate$8([
-        Component({
-            template: html `
+    MemoryApp = MemoryApp_1 = __decorate([
+        Component_1({
+            template: html_1 `
     <div class="text-center py-16">
       ${new SourceLink({ url: MemoryApp_1.SourceUrl })}
       ${new CardGame()}
@@ -346,16 +354,10 @@
         })
     ], MemoryApp);
 
-    var __decorate$7 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    let RenderedIn = class RenderedIn extends AyceComponent_1 {
     };
-    let RenderedIn = class RenderedIn extends AyceComponent {
-    };
-    RenderedIn = __decorate$7([
-        Component({
+    RenderedIn = __decorate([
+        Component_1({
             template: `
     <p class="text-sm text-gray-900 py-4">
       Rendered in: <strong x-text="props.name"></strong>
@@ -364,13 +366,7 @@
         })
     ], RenderedIn);
 
-    var __decorate$6 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    let Counter = class Counter extends AyceComponent {
+    let Counter = class Counter extends AyceComponent_1 {
         onClick() {
             if (this.state.intervalId !== null) {
                 this.stop();
@@ -400,8 +396,8 @@
             this.state.time = 20;
         }
     };
-    Counter = __decorate$6([
-        Component({
+    Counter = __decorate([
+        Component_1({
             template: `
     <button
       x-text="state.time"
@@ -416,13 +412,7 @@
         })
     ], Counter);
 
-    var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    let CounterApp = class CounterApp extends AyceComponent {
+    let CounterApp = class CounterApp extends AyceComponent_1 {
         onInit() {
             console.log('Init: Counter App');
         }
@@ -433,9 +423,9 @@
             return () => alert(`${name} -> done!`);
         }
     };
-    CounterApp = __decorate$5([
-        Component({
-            template: ({ self }) => html `
+    CounterApp = __decorate([
+        Component_1({
+            template: ({ self }) => html_1 `
     <div class="text-center">
       ${new RenderedIn({ name: self.parent.name })}
       <div class="pb-4">
@@ -455,16 +445,10 @@
         })
     ], CounterApp);
 
-    var __decorate$4 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    let NavItem = class NavItem extends AyceComponent_1 {
     };
-    let NavItem = class NavItem extends AyceComponent {
-    };
-    NavItem = __decorate$4([
-        Component({
+    NavItem = __decorate([
+        Component_1({
             template: `
     <button
       @click="props.onClick()"
@@ -475,14 +459,8 @@
         })
     ], NavItem);
 
-    var __decorate$3 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
     var TagsApp_1;
-    let TagsApp = TagsApp_1 = class TagsApp extends AyceComponent {
+    let TagsApp = TagsApp_1 = class TagsApp extends AyceComponent_1 {
         onInit() {
             console.log('Init: Tags App');
         }
@@ -505,9 +483,9 @@
         }
     };
     TagsApp.SourceUrl = 'https://github.com/alpinejs/alpine/blob/master/examples/tags.html';
-    TagsApp = TagsApp_1 = __decorate$3([
-        Component({
-            template: html `
+    TagsApp = TagsApp_1 = __decorate([
+        Component_1({
+            template: html_1 `
     <div class="bg-grey-lighter px-8 py-16">
       ${new SourceLink({ url: TagsApp_1.SourceUrl })}
       <template x-for="tag in state.tags">
@@ -606,20 +584,14 @@
         })
     ], TagsApp);
 
-    var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    let ScopedCss = class ScopedCss extends AyceComponent_1 {
     };
-    let ScopedCss = class ScopedCss extends AyceComponent {
-    };
-    ScopedCss = __decorate$2([
-        Component({
+    ScopedCss = __decorate([
+        Component_1({
             template: ({ props }) => `
     <p class="text-lg font-bold">Look at me, I am ${props.color}!<p>
   `,
-            styles: ({ self, props }) => css `
+            styles: ({ self, props }) => css_1 `
     ${self} {
       color: ${props.color};
     }
@@ -627,17 +599,11 @@
         })
     ], ScopedCss);
 
-    var __decorate$1 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    let ScopedCssApp = class ScopedCssApp extends AyceComponent_1 {
     };
-    let ScopedCssApp = class ScopedCssApp extends AyceComponent {
-    };
-    ScopedCssApp = __decorate$1([
-        Component({
-            template: html `
+    ScopedCssApp = __decorate([
+        Component_1({
+            template: html_1 `
     <div class="text-center">
       <p class="text-2xl font-bold text-gray-900 my-4">
         Inspect one of the paragraph's styles below! :)
@@ -649,12 +615,6 @@
         })
     ], ScopedCssApp);
 
-    var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
     const routes = [
         { path: '', caption: 'Home' },
         { path: 'counter', caption: 'Counter' },
@@ -662,7 +622,7 @@
         { path: 'memory', caption: 'Memory Game' },
         { path: 'tags', caption: 'Tags' },
     ];
-    let App = class App extends AyceComponent {
+    let App = class App extends AyceComponent_1 {
         onRouteChange(route) {
             return () => {
                 console.log('Route changed to:', route);
@@ -671,8 +631,8 @@
         }
     };
     App = __decorate([
-        Component({
-            template: ({ self }) => html `
+        Component_1({
+            template: ({ self }) => html_1 `
     <div class="p-8">
       <nav class="text-center">
         ${routes.map(({ path, caption }) => new NavItem({
@@ -704,6 +664,6 @@
             },
         })
     ], App);
-    createApp(new App({}, 'DemoApp'), document.getElementById('root'));
+    createApp_1(new App({}, 'DemoApp'), document.getElementById('root'));
 
 }());

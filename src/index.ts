@@ -1,4 +1,4 @@
-import { AyceComponent, Component, createApp, html } from '../../ayce/lib/index';
+import { AyceComponent, Component, createApp, html } from 'ayce';
 import { MemoryApp } from './CardGame/MemoryApp';
 import { CounterApp } from './Counter/CounterApp';
 import { NavItem } from './components/NavItem';

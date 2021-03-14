@@ -1,4 +1,4 @@
-import { AyceComponent, Component, html } from '../../../ayce/lib/index';
+import { AyceComponent, Component, html } from 'ayce';
 import { RenderedIn } from '../components/RenderedIn';
 import { Counter } from './Counter';
 

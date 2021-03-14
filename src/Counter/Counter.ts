@@ -1,10 +1,10 @@
 import {
   AyceComponent,
   Component,
-} from '../../../ayce/lib/index';
+} from 'ayce';
 
 type CounterState = {
-  intervalId: null | number;
+  intervalId: null | NodeJS.Timeout;
   time: number;
 };
 

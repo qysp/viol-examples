@@ -1,4 +1,4 @@
-import { AyceComponent, Component, css } from '../../../ayce/lib/index';
+import { AyceComponent, Component, css } from 'ayce';
 
 @Component<ScopedCss>({
   template: ({ props }) => `
