@@ -1,4 +1,4 @@
-import { AyceComponent, Component } from 'ayce';
+import { ViolComponent, Component } from '@viol/core';
 
 type FlashMessageState = {
   show: boolean;
@@ -20,7 +20,7 @@ type FlashMessageState = {
     message: '',
   },
 })
-export class FlashMessage extends AyceComponent<FlashMessageState> {
+export class FlashMessage extends ViolComponent<FlashMessageState> {
   onFlash($event: CustomEvent<{ message: string }>) {
     this.state.message = $event.detail.message;
     this.state.show = true;

@@ -1,4 +1,4 @@
-import { AyceComponent, Component, css } from 'ayce';
+import { ViolComponent, Component, css } from '@viol/core';
 
 @Component<ScopedCss>({
   template: ({ props }) => `
@@ -10,4 +10,4 @@ import { AyceComponent, Component, css } from 'ayce';
     }
   `,
 })
-export class ScopedCss extends AyceComponent<{}, { color: string }> { }
+export class ScopedCss extends ViolComponent<{}, { color: string }> { }

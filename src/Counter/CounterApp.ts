@@ -1,4 +1,4 @@
-import { AyceComponent, Component, html } from 'ayce';
+import { ViolComponent, Component, html } from '@viol/core';
 import { RenderedIn } from '../components/RenderedIn';
 import { Counter } from './Counter';
 
@@ -21,7 +21,7 @@ import { Counter } from './Counter';
     </div>
   `,
 })
-export class CounterApp extends AyceComponent {
+export class CounterApp extends ViolComponent {
   onInit() {
     console.log('Init: Counter App');
   }

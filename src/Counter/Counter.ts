@@ -1,7 +1,7 @@
 import {
-  AyceComponent,
+  ViolComponent,
   Component,
-} from 'ayce';
+} from '@viol/core';
 
 type CounterState = {
   intervalId: null | NodeJS.Timeout;
@@ -26,10 +26,13 @@ type CounterProps = {
     time: 20,
   },
 })
-export class Counter extends AyceComponent<CounterState, CounterProps> {
+export class Counter extends ViolComponent<CounterState, CounterProps> {
   onClick() {
     if (this.state.intervalId !== null) {
       this.stop();
+      return;
+    } else if (this.state.time === 0) {
+      this.reset();
     }
     this.start();
   }
@@ -42,7 +45,7 @@ export class Counter extends AyceComponent<CounterState, CounterProps> {
         if (this.props.onDone !== undefined) {
           this.props.onDone();
         }
-        this.reset();
+        this.stop();
       }
     }, this.props.tickrate ?? 1000);
   }
@@ -55,7 +58,6 @@ export class Counter extends AyceComponent<CounterState, CounterProps> {
   }
 
   reset() {
-    this.stop();
     this.state.time = 20;
   }
 }

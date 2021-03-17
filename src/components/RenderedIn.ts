@@ -1,6 +1,6 @@
-import { AyceComponent, Component } from "ayce";
+import { ViolComponent, Component } from '@viol/core';
 
-export type RenderedInProps = {
+type RenderedInProps = {
   name: string;
 };
 
@@ -11,4 +11,4 @@ export type RenderedInProps = {
     </p>
   `,
 })
-export class RenderedIn extends AyceComponent<{}, RenderedInProps> { }
+export class RenderedIn extends ViolComponent<{}, RenderedInProps> { }

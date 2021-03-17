@@ -1,4 +1,4 @@
-import { AyceComponent, Component, createApp, html } from 'ayce';
+import { ViolComponent, Component, createApp, html } from '@viol/core';
 import { MemoryApp } from './CardGame/MemoryApp';
 import { CounterApp } from './Counter/CounterApp';
 import { NavItem } from './components/NavItem';
@@ -49,7 +49,7 @@ const routes = [
     route: '',
   },
 })
-class App extends AyceComponent<AppState> {
+class App extends ViolComponent<AppState> {
   onRouteChange(route: string) {
     return () => {
       console.log('Route changed to:', route);

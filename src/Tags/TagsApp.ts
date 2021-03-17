@@ -1,4 +1,4 @@
-import { AyceComponent, Component, html } from "ayce";
+import { ViolComponent, Component, html } from '@viol/core';
 import { SourceLink } from "../components/SourceLink";
 
 type TagsAppState = {
@@ -104,7 +104,7 @@ type TagsAppState = {
     newTag: '',
   },
 })
-export class TagsApp extends AyceComponent<TagsAppState> {
+export class TagsApp extends ViolComponent<TagsAppState> {
   static readonly SourceUrl = 'https://github.com/alpinejs/alpine/blob/master/examples/tags.html';
 
   onInit() {

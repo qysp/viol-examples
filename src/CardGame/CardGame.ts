@@ -1,7 +1,7 @@
 import {
-  AyceComponent,
+  ViolComponent,
   Component,
-} from 'ayce';
+} from '@viol/core';
 
 type Card = { color: string, flipped: boolean, cleared: boolean };
 
@@ -45,7 +45,7 @@ type CardGameState = {
     ].sort(() => Math.random() - .5),
   },
 })
-export class CardGame extends AyceComponent<CardGameState> {
+export class CardGame extends ViolComponent<CardGameState> {
     pause(milliseconds = 1000): Promise<void> {
       return new Promise((resolve) => setTimeout(resolve, milliseconds));
     }

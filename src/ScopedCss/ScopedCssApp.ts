@@ -1,4 +1,4 @@
-import { AyceComponent, Component, html } from 'ayce';
+import { ViolComponent, Component, html } from '@viol/core';
 import { ScopedCss } from './ScopedCss';
 
 @Component<ScopedCssApp>({
@@ -12,4 +12,4 @@ import { ScopedCss } from './ScopedCss';
     </div>
   `,
 })
-export class ScopedCssApp extends AyceComponent { }
+export class ScopedCssApp extends ViolComponent { }

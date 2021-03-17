@@ -23,36 +23,39 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     }
 
-    const templateSymbol = Symbol('Ayce::Template');
+    function __awaiter(thisArg, _arguments, P, generator) {
+        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    }
 
     const UidGenerator = (function* (id = 0) {
         while (++id)
             yield (id + Math.random()).toString(36);
     })();
     const uid = () => UidGenerator.next().value;
+    const createElement = (tagName, innerHTML) => {
+        const element = document.createElement(tagName);
+        element.innerHTML = innerHTML;
+        return element;
+    };
     const createFragment = (html) => {
-        const template = document.createElement('template');
-        template.innerHTML = html;
+        const template = createElement('template', html);
         return template.content;
     };
 
     const generateName = (component) => {
         return `${component.constructor.name}_${uid()}`;
     };
-    const process = (subject, args) => {
-        if (typeof subject === 'function') {
-            subject = subject(args);
+    const defineViolComponent = (name, component) => {
+        if (window.ViolComponents.has(name)) {
+            throw new Error(`[Viol] Error: component with name '${name}' already exists!`);
         }
-        if (typeof subject === 'string') {
-            return subject;
-        }
-        return subject.process(args);
-    };
-    const defineAyceComponent = (name, component) => {
-        if (window.AyceComponents.has(name)) {
-            throw new Error(`[Ayce] Error: component with name '${name}' already exists!`);
-        }
-        window.AyceComponents.set(name, component);
+        window.ViolComponents.set(name, component);
     };
     const createReactivity = (component, state) => {
         return new Proxy(state, {
@@ -72,70 +75,20 @@
             },
         });
     };
-    class AyceComponent {
+    class ViolComponent {
         constructor(props, name) {
             this.name = name !== null && name !== void 0 ? name : generateName(this);
             this.selector = `[x-name="${this.name}"]`;
-            defineAyceComponent(this.name, this);
+            defineViolComponent(this.name, this);
             this.props = props !== null && props !== void 0 ? props : {};
             this.state = createReactivity(this, Object.assign({}, this.state));
-        }
-        [templateSymbol]() {
-            const substituteArgs = {
-                props: this.props,
-                state: this.state,
-                self: this,
-            };
-            const html = process(this.template, substituteArgs);
-            const fragment = createFragment(html);
-            const root = fragment.firstElementChild;
-            if (root !== null) {
-                root.setAttribute('x-name', this.name);
-                root.setAttribute('x-data', `AyceComponents.get('${this.name}')`);
-            }
-            if (this.styles !== undefined) {
-                const styleElement = document.createElement('style');
-                styleElement.innerHTML = process(this.styles, substituteArgs);
-                document.head.appendChild(styleElement);
-            }
-            return Array.from(fragment.children).reduce((markup, child) => {
-                return markup + child.outerHTML;
-            }, '');
         }
     }
 
     class Processor {
     }
-    const ensureArray = (substitute) => {
-        return Array.isArray(substitute) ? substitute : [substitute];
-    };
-    class HtmlProcessor extends Processor {
-        constructor(strings, substitutes) {
-            super();
-            this.strings = strings;
-            this.substitutes = substitutes;
-        }
-        process(args) {
-            return this.strings.reduce((html, string, index) => {
-                var _a;
-                let substitute = (_a = this.substitutes[index]) !== null && _a !== void 0 ? _a : '';
-                if (typeof substitute === 'function') {
-                    substitute = substitute(args);
-                }
-                for (const item of ensureArray(substitute)) {
-                    if (item instanceof AyceComponent) {
-                        item.parent = args.self;
-                        string += item[templateSymbol]();
-                    }
-                    else {
-                        string += String(item);
-                    }
-                }
-                return html + string;
-            }, '');
-        }
-    }
-    class CssProcessor extends Processor {
+
+    class CSSProcessor extends Processor {
         constructor(strings, substitutes) {
             super();
             this.strings = strings;
@@ -143,16 +96,97 @@
         }
         process(args) {
             return this.strings.reduce((css, string, index) => {
-                var _a;
-                let substitute = (_a = this.substitutes[index]) !== null && _a !== void 0 ? _a : '';
-                if (typeof substitute === 'function') {
-                    substitute = substitute(args);
+                const sub = this.processSubstitute(this.substitutes[index - 1], args);
+                return css + sub + string;
+            });
+        }
+        processSubstitute(substitute, args) {
+            if (typeof substitute === 'function') {
+                substitute = substitute(args);
+            }
+            return substitute instanceof ViolComponent
+                ? substitute.selector
+                : String(substitute);
+        }
+    }
+
+    const process = (subject, args) => {
+        if (typeof subject === 'function') {
+            subject = subject(args);
+        }
+        if (typeof subject === 'string') {
+            return subject;
+        }
+        return subject.process(args);
+    };
+    const processTemplate = (template, args) => {
+        const html = process(template, args);
+        const fragment = createFragment(html);
+        const root = fragment.firstElementChild;
+        if (root !== null) {
+            root.setAttribute('x-name', args.self.name);
+            root.setAttribute('x-data', `ViolComponents.get('${args.self.name}')`);
+        }
+        return Array.from(fragment.children).reduce((markup, child) => {
+            return markup + child.outerHTML;
+        }, '');
+    };
+    const processStyles = (styles, args) => {
+        if (styles === undefined) {
+            return '';
+        }
+        return process(styles, args);
+    };
+    const processComponent = (component) => {
+        const args = {
+            props: component.props,
+            state: component.state,
+            self: component,
+        };
+        const html = processTemplate(component.template, args);
+        const css = processStyles(component.styles, args);
+        window.ViolStyles.push(css);
+        return html;
+    };
+
+    class HTMLProcessor extends Processor {
+        constructor(strings, substitutes) {
+            super();
+            this.strings = strings;
+            this.substitutes = substitutes;
+        }
+        process(args) {
+            return this.strings.reduce((html, string, index) => {
+                const sub = this.processSubstitute(this.substitutes[index - 1], args);
+                return html + sub + string;
+            });
+        }
+        processSubstitute(substitute, args) {
+            if (typeof substitute === 'function') {
+                substitute = substitute(args);
+            }
+            return this.ensureArray(substitute).reduce((template, item) => {
+                if (item instanceof ViolComponent) {
+                    if (item === args.self) {
+                        throw new Error('[Viol] Error: components cannot be used in their own templates (infinite recursion)');
+                    }
+                    item.parent = args.self;
+                    template += processComponent(item);
                 }
-                string += substitute instanceof AyceComponent
-                    ? substitute.selector
-                    : String(substitute);
-                return css + string;
+                else if (item instanceof Processor) {
+                    template += item.process(args);
+                }
+                else if (typeof item === 'function') {
+                    template += this.processSubstitute(item, args);
+                }
+                else {
+                    template += String(item);
+                }
+                return template;
             }, '');
+        }
+        ensureArray(substitute) {
+            return Array.isArray(substitute) ? substitute : [substitute];
         }
     }
 
@@ -170,17 +204,19 @@
         };
     }
     const html = (strings, ...substitutes) => {
-        return new HtmlProcessor([...strings], substitutes);
+        return new HTMLProcessor([...strings], substitutes);
     };
     const css = (strings, ...substitutes) => {
-        return new CssProcessor([...strings], substitutes);
+        return new CSSProcessor([...strings], substitutes);
     };
     const createApp = (component, root) => {
         var _a;
         const alpine = (_a = window.deferLoadingAlpine) !== null && _a !== void 0 ? _a : ((cb) => cb());
         window.deferLoadingAlpine = (callback) => {
             alpine(callback);
-            root.innerHTML = component[templateSymbol]();
+            root.innerHTML = processComponent(component);
+            const styleSheet = createElement('style', window.ViolStyles.join(''));
+            document.head.appendChild(styleSheet);
             window.Alpine.onBeforeComponentInitialized((component) => {
                 if (typeof component.$data.onInit === 'function') {
                     component.$data.onInit();
@@ -194,17 +230,20 @@
         };
     };
 
-    if (!('AyceComponents' in window)) {
-        window.AyceComponents = new Map();
+    if (!('ViolComponents' in window)) {
+        window.ViolComponents = new Map();
+    }
+    if (!('ViolStyles' in window)) {
+        window.ViolStyles = [];
     }
 
-    var AyceComponent_1 = AyceComponent;
     var Component_1 = Component;
+    var ViolComponent_1 = ViolComponent;
     var createApp_1 = createApp;
     var css_1 = css;
     var html_1 = html;
 
-    let SourceLink = class SourceLink extends AyceComponent_1 {
+    let SourceLink = class SourceLink extends ViolComponent_1 {
     };
     SourceLink = __decorate([
         Component_1({
@@ -228,7 +267,7 @@
         })
     ], SourceLink);
 
-    let CardGame = class CardGame extends AyceComponent_1 {
+    let CardGame = class CardGame extends ViolComponent_1 {
         pause(milliseconds = 1000) {
             return new Promise((resolve) => setTimeout(resolve, milliseconds));
         }
@@ -249,22 +288,24 @@
         get points() {
             return this.clearedCards.length;
         }
-        async flipCard(card) {
-            card.flipped = !card.flipped;
-            if (this.flippedCards.length !== 2)
-                return;
-            if (this.hasMatch()) {
-                this.flash('You found a match!');
-                await this.pause();
-                this.flippedCards.forEach((card) => card.cleared = true);
-                if (!this.remainingCards.length) {
-                    alert('You Won!');
+        flipCard(card) {
+            return __awaiter(this, void 0, void 0, function* () {
+                card.flipped = !card.flipped;
+                if (this.flippedCards.length !== 2)
+                    return;
+                if (this.hasMatch()) {
+                    this.flash('You found a match!');
+                    yield this.pause();
+                    this.flippedCards.forEach((card) => card.cleared = true);
+                    if (!this.remainingCards.length) {
+                        alert('You Won!');
+                    }
                 }
-            }
-            else {
-                await this.pause();
-            }
-            this.flippedCards.forEach((card) => card.flipped = false);
+                else {
+                    yield this.pause();
+                }
+                this.flippedCards.forEach((card) => card.flipped = false);
+            });
         }
         hasMatch() {
             const [cardA, cardB] = this.flippedCards;
@@ -310,7 +351,7 @@
         })
     ], CardGame);
 
-    let FlashMessage = class FlashMessage extends AyceComponent_1 {
+    let FlashMessage = class FlashMessage extends ViolComponent_1 {
         onFlash($event) {
             this.state.message = $event.detail.message;
             this.state.show = true;
@@ -336,7 +377,7 @@
     ], FlashMessage);
 
     var MemoryApp_1;
-    let MemoryApp = MemoryApp_1 = class MemoryApp extends AyceComponent_1 {
+    let MemoryApp = MemoryApp_1 = class MemoryApp extends ViolComponent_1 {
         onInit() {
             console.log('Init: Memory App');
         }
@@ -354,7 +395,7 @@
         })
     ], MemoryApp);
 
-    let RenderedIn = class RenderedIn extends AyceComponent_1 {
+    let RenderedIn = class RenderedIn extends ViolComponent_1 {
     };
     RenderedIn = __decorate([
         Component_1({
@@ -366,14 +407,19 @@
         })
     ], RenderedIn);
 
-    let Counter = class Counter extends AyceComponent_1 {
+    let Counter = class Counter extends ViolComponent_1 {
         onClick() {
             if (this.state.intervalId !== null) {
                 this.stop();
+                return;
+            }
+            else if (this.state.time === 0) {
+                this.reset();
             }
             this.start();
         }
         start() {
+            var _a;
             --this.state.time;
             this.state.intervalId = setInterval(() => {
                 --this.state.time;
@@ -381,9 +427,9 @@
                     if (this.props.onDone !== undefined) {
                         this.props.onDone();
                     }
-                    this.reset();
+                    this.stop();
                 }
-            }, this.props.tickrate ?? 1000);
+            }, (_a = this.props.tickrate) !== null && _a !== void 0 ? _a : 1000);
         }
         stop() {
             if (this.state.intervalId !== null) {
@@ -392,7 +438,6 @@
             }
         }
         reset() {
-            this.stop();
             this.state.time = 20;
         }
     };
@@ -412,7 +457,7 @@
         })
     ], Counter);
 
-    let CounterApp = class CounterApp extends AyceComponent_1 {
+    let CounterApp = class CounterApp extends ViolComponent_1 {
         onInit() {
             console.log('Init: Counter App');
         }
@@ -445,7 +490,7 @@
         })
     ], CounterApp);
 
-    let NavItem = class NavItem extends AyceComponent_1 {
+    let NavItem = class NavItem extends ViolComponent_1 {
     };
     NavItem = __decorate([
         Component_1({
@@ -460,7 +505,7 @@
     ], NavItem);
 
     var TagsApp_1;
-    let TagsApp = TagsApp_1 = class TagsApp extends AyceComponent_1 {
+    let TagsApp = TagsApp_1 = class TagsApp extends ViolComponent_1 {
         onInit() {
             console.log('Init: Tags App');
         }
@@ -584,7 +629,7 @@
         })
     ], TagsApp);
 
-    let ScopedCss = class ScopedCss extends AyceComponent_1 {
+    let ScopedCss = class ScopedCss extends ViolComponent_1 {
     };
     ScopedCss = __decorate([
         Component_1({
@@ -599,7 +644,7 @@
         })
     ], ScopedCss);
 
-    let ScopedCssApp = class ScopedCssApp extends AyceComponent_1 {
+    let ScopedCssApp = class ScopedCssApp extends ViolComponent_1 {
     };
     ScopedCssApp = __decorate([
         Component_1({
@@ -622,7 +667,7 @@
         { path: 'memory', caption: 'Memory Game' },
         { path: 'tags', caption: 'Tags' },
     ];
-    let App = class App extends AyceComponent_1 {
+    let App = class App extends ViolComponent_1 {
         onRouteChange(route) {
             return () => {
                 console.log('Route changed to:', route);

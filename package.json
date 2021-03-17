@@ -1,9 +1,10 @@
 {
-  "name": "ayce-examples",
+  "name": "viol-examples",
   "version": "0.0.1",
-  "description": "Some examples using Ayce",
+  "description": "Some examples using Viol",
   "author": "qysp",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "start": "serve -l 8080",
     "build": "rollup -c"
@@ -12,10 +13,12 @@
     "@rollup/plugin-commonjs": "^17.1.0",
     "@rollup/plugin-node-resolve": "^11.2.0",
     "@rollup/plugin-typescript": "^8.2.0",
-    "ayce": "0.0.4",
     "rollup": "^2.40.0",
     "serve": "^11.3.2",
     "tslib": "^2.1.0",
     "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "@viol/core": "^0.0.1"
   }
 }

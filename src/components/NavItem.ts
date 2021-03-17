@@ -1,6 +1,6 @@
-import { AyceComponent, Component } from "ayce";
+import { ViolComponent, Component } from '@viol/core';
 
-export type NavItemProps = {
+type NavItemProps = {
   onClick: Function;
   caption: string;
 };
@@ -14,4 +14,4 @@ export type NavItemProps = {
     ></button>
   `,
 })
-export class NavItem extends AyceComponent<{}, NavItemProps> { }
+export class NavItem extends ViolComponent<{}, NavItemProps> { }

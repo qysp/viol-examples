@@ -1,4 +1,4 @@
-import { AyceComponent, Component, html } from 'ayce';
+import { ViolComponent, Component, html } from '@viol/core';
 import { SourceLink } from '../components/SourceLink';
 import { CardGame } from './CardGame';
 import { FlashMessage } from './FlashMessage';
@@ -12,7 +12,7 @@ import { FlashMessage } from './FlashMessage';
     </div>
   `,
 })
-export class MemoryApp extends AyceComponent {
+export class MemoryApp extends ViolComponent {
   static readonly SourceUrl = 'https://github.com/alpinejs/alpine/blob/master/examples/card-game.html';
 
   onInit(): void {

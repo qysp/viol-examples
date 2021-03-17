@@ -1,4 +1,4 @@
-import { AyceComponent, Component, css } from 'ayce';
+import { ViolComponent, Component, css } from '@viol/core';
 
 type SourceLinkProps = {
   url: string;
@@ -23,4 +23,4 @@ type SourceLinkProps = {
     }
   `,
 })
-export class SourceLink extends AyceComponent<{}, SourceLinkProps> { }
+export class SourceLink extends ViolComponent<{}, SourceLinkProps> { }
