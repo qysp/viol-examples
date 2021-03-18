@@ -66,10 +66,10 @@
   dependencies:
     "@types/node" "*"
 
-"@viol/core@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@viol/core/-/core-0.0.1.tgz#f9982bc5cca56501fc1b38309fd65c9f420bdb69"
-  integrity sha512-aWKtnDEjdYxezYr50O44SWrMdN+lOa6H1cHM8GM9AlSf6rs26Qo6Ld7fWCh8O1Fcm/m2QqR9Y87vuceymwDUaQ==
+"@viol/core@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@viol/core/-/core-0.0.2.tgz#97780d52c74c33432ee8b02b2f40109ea6091567"
+  integrity sha512-Ml7zKUDL5DCTynIurx9HLRFCcmBaiTDYvL+DpUtWadQ418Xlx2YDNUeKoPrq7bKyuYpOYQuTir3LF0Vvewbr7A==
 
 "@zeit/schemas@2.6.0":
   version "2.6.0"
