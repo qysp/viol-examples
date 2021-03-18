@@ -363,6 +363,41 @@
     exports.useSyntheticRouter = useSyntheticRouter;
     });
 
+    let NavItem = class NavItem extends ViolComponent_1 {
+        get routerLink() {
+            return this.props.path;
+        }
+    };
+    NavItem = __decorate([
+        Component_1({
+            template: `
+    <button
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mr-1"
+      x-text="props.caption"
+    ></button>
+  `,
+        })
+    ], NavItem);
+
+    const nav = [
+        { path: '', caption: 'Home' },
+        { path: 'counter', caption: 'Counter' },
+        { path: 'scopedCss', caption: 'Scoped CSS' },
+        { path: 'memory', caption: 'Memory Game' },
+        { path: 'tags', caption: 'Tags' },
+    ];
+    let Nav = class Nav extends ViolComponent_1 {
+    };
+    Nav = __decorate([
+        Component_1({
+            template: html_1 `
+    <nav class="text-center">
+      ${nav.map(({ path, caption }) => (new NavItem({ path, caption })))}
+    </nav>
+  `,
+        })
+    ], Nav);
+
     let SourceLink = class SourceLink extends ViolComponent_1 {
     };
     SourceLink = __decorate([
@@ -610,21 +645,36 @@
         })
     ], CounterApp);
 
-    let NavItem = class NavItem extends ViolComponent_1 {
-        get routerLink() {
-            return this.props.path;
-        }
+    let ScopedCss = class ScopedCss extends ViolComponent_1 {
     };
-    NavItem = __decorate([
+    ScopedCss = __decorate([
         Component_1({
-            template: `
-    <button
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mr-1"
-      x-text="props.caption"
-    ></button>
+            template: ({ props }) => `
+    <p class="text-lg font-bold">Look at me, I am ${props.color}!<p>
+  `,
+            styles: ({ self, props }) => css_1 `
+    ${self} {
+      color: ${props.color};
+    }
   `,
         })
-    ], NavItem);
+    ], ScopedCss);
+
+    let ScopedCssApp = class ScopedCssApp extends ViolComponent_1 {
+    };
+    ScopedCssApp = __decorate([
+        Component_1({
+            template: html_1 `
+    <div class="text-center">
+      <p class="text-2xl font-bold text-gray-900 my-4">
+        Inspect one of the paragraph's styles below! :)
+      </p>
+      ${new ScopedCss({ color: 'red' })}
+      ${new ScopedCss({ color: 'blue' })}
+    </div>
+  `,
+        })
+    ], ScopedCssApp);
 
     var TagsApp_1;
     let TagsApp = TagsApp_1 = class TagsApp extends ViolComponent_1 {
@@ -751,44 +801,6 @@
         })
     ], TagsApp);
 
-    let ScopedCss = class ScopedCss extends ViolComponent_1 {
-    };
-    ScopedCss = __decorate([
-        Component_1({
-            template: ({ props }) => `
-    <p class="text-lg font-bold">Look at me, I am ${props.color}!<p>
-  `,
-            styles: ({ self, props }) => css_1 `
-    ${self} {
-      color: ${props.color};
-    }
-  `,
-        })
-    ], ScopedCss);
-
-    let ScopedCssApp = class ScopedCssApp extends ViolComponent_1 {
-    };
-    ScopedCssApp = __decorate([
-        Component_1({
-            template: html_1 `
-    <div class="text-center">
-      <p class="text-2xl font-bold text-gray-900 my-4">
-        Inspect one of the paragraph's styles below! :)
-      </p>
-      ${new ScopedCss({ color: 'red' })}
-      ${new ScopedCss({ color: 'blue' })}
-    </div>
-  `,
-        })
-    ], ScopedCssApp);
-
-    const nav = [
-        { path: '', caption: 'Home' },
-        { path: 'counter', caption: 'Counter' },
-        { path: 'scopedCss', caption: 'Scoped CSS' },
-        { path: 'memory', caption: 'Memory Game' },
-        { path: 'tags', caption: 'Tags' },
-    ];
     const routes = [
         {
             path: '',
@@ -803,25 +815,33 @@
         { path: 'memory', component: new MemoryApp({}, 'MemoryApp') },
         { path: 'tags', component: new TagsApp({}, 'TagsApp') },
     ];
-    let App = class App extends ViolComponent_1 {
+    let Router = class Router extends ViolComponent_1 {
         onRouteChange(route) {
             console.log('Route changed to:', route);
         }
     };
-    App = __decorate([
+    Router = __decorate([
         Component_1({
             template: ({ self }) => html_1 `
-    <div class="p-8">
-      <nav class="text-center">
-        ${nav.map(({ path, caption }) => new NavItem({ path, caption }))}
-      </nav>
-      <main class="py-8">
-        ${new lib.RouterOutlet({
+    <main class="py-8">
+      ${new lib.RouterOutlet({
             router: lib.syntheticRouter,
             routes,
             onRouteChange: self.onRouteChange,
         })}
-      </main>
+    </main>
+  `,
+        })
+    ], Router);
+
+    let App = class App extends ViolComponent_1 {
+    };
+    App = __decorate([
+        Component_1({
+            template: html_1 `
+    <div class="p-8">
+      ${new Nav()}
+      ${new Router()}
     </div>
   `,
             state: {
@@ -829,8 +849,7 @@
             },
         })
     ], App);
-    const app = new App({}, 'DemoApp');
-    createApp_1(app, document.getElementById('root'), {
+    createApp_1(new App({}, 'DemoApp'), document.getElementById('root'), {
         with: [lib.useSyntheticRouter],
     });
 
