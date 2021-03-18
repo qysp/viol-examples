@@ -212,7 +212,11 @@
     const css = (strings, ...substitutes) => {
         return new CSSProcessor([...strings], substitutes);
     };
-    const createApp = (component, root) => {
+    const getComponent = (name) => {
+        var _a;
+        return (_a = window.ViolComponents.get(name)) !== null && _a !== void 0 ? _a : null;
+    };
+    const createApp = (component, root, options) => {
         var _a;
         const alpine = (_a = window.deferLoadingAlpine) !== null && _a !== void 0 ? _a : ((cb) => cb());
         window.deferLoadingAlpine = (callback) => {
@@ -231,6 +235,11 @@
                 }
             });
         };
+        if (Array.isArray(options === null || options === void 0 ? void 0 : options.with)) {
+            for (const initializer of options.with) {
+                initializer();
+            }
+        }
     };
 
     if (!('ViolComponents' in window)) {
@@ -244,7 +253,115 @@
     var ViolComponent_1 = ViolComponent;
     var createApp_1 = createApp;
     var css_1 = css;
+    var getComponent_1 = getComponent;
     var html_1 = html;
+
+    var lib$1 = /*#__PURE__*/Object.defineProperty({
+    	Component: Component_1,
+    	ViolComponent: ViolComponent_1,
+    	createApp: createApp_1,
+    	css: css_1,
+    	getComponent: getComponent_1,
+    	html: html_1
+    }, '__esModule', {value: true});
+
+    function createCommonjsModule(fn) {
+      var module = { exports: {} };
+    	return fn(module, module.exports), module.exports;
+    }
+
+    var lib = createCommonjsModule(function (module, exports) {
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
+
+
+    var __decorate = function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    exports.RouterOutlet = class RouterOutlet extends lib$1.ViolComponent {
+        onInit() {
+            this.props.router.onRouteChange((route) => {
+                this.route = route;
+            });
+        }
+        matchesRoute(route) {
+            return this.route === route;
+        }
+        get route() {
+            return this.state.currentRoute;
+        }
+        set route(route) {
+            var _a, _b;
+            (_b = (_a = this.props).onRouteChange) === null || _b === void 0 ? void 0 : _b.call(_a, route);
+            this.state.currentRoute = route;
+        }
+    };
+    exports.RouterOutlet = __decorate([
+        lib$1.Component({
+            template: ({ props }) => lib$1.html `
+    <div>
+      ${props.routes.map((route) => {
+            var _a;
+            return lib$1.html `
+        <template x-if="matchesRoute('${route.path}')">
+          ${(_a = route.component) !== null && _a !== void 0 ? _a : route.template}
+        </template>
+      `;
+        })}
+    <div>
+  `,
+            state: {
+                currentRoute: '',
+            },
+        })
+    ], exports.RouterOutlet);
+
+    class Router {
+    }
+
+    const listeners = new Set();
+    class SyntheticRouter extends Router {
+        constructor() {
+            super(...arguments);
+            this.currentRoute = '';
+        }
+        onRouteChange(callback) {
+            listeners.add(callback);
+            return () => {
+                listeners.delete(callback);
+            };
+        }
+        changeRoute(route) {
+            this.currentRoute = route;
+            for (const listener of listeners) {
+                listener(route);
+            }
+        }
+    }
+    const syntheticRouter = new SyntheticRouter();
+    const useSyntheticRouter = () => {
+        var _a;
+        const alpine = (_a = window.deferLoadingAlpine) !== null && _a !== void 0 ? _a : ((cb) => cb());
+        window.deferLoadingAlpine = (callback) => {
+            alpine(callback);
+            window.Alpine.onBeforeComponentInitialized((component) => {
+                var _a, _b;
+                const routerLink = (_a = component.$data.routerLink) !== null && _a !== void 0 ? _a : (_b = component.$el) === null || _b === void 0 ? void 0 : _b.getAttribute('x-router-link');
+                if (routerLink !== null && component.$el !== undefined) {
+                    component.$el.addEventListener('click', () => syntheticRouter.changeRoute(routerLink));
+                }
+            });
+        };
+    };
+
+    exports.Router = Router;
+    exports.syntheticRouter = syntheticRouter;
+    exports.useSyntheticRouter = useSyntheticRouter;
+    });
 
     let SourceLink = class SourceLink extends ViolComponent_1 {
     };
@@ -494,12 +611,14 @@
     ], CounterApp);
 
     let NavItem = class NavItem extends ViolComponent_1 {
+        get routerLink() {
+            return this.props.path;
+        }
     };
     NavItem = __decorate([
         Component_1({
             template: `
     <button
-      @click="props.onClick()"
       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mr-1"
       x-text="props.caption"
     ></button>
@@ -663,19 +782,30 @@
         })
     ], ScopedCssApp);
 
-    const routes = [
+    const nav = [
         { path: '', caption: 'Home' },
         { path: 'counter', caption: 'Counter' },
         { path: 'scopedCss', caption: 'Scoped CSS' },
         { path: 'memory', caption: 'Memory Game' },
         { path: 'tags', caption: 'Tags' },
     ];
+    const routes = [
+        {
+            path: '',
+            template: `
+      <p class="text-center text-3xl font-bold text-gray-900">
+        Go ahead and click one of those examples above (:
+      </p>
+    `,
+        },
+        { path: 'counter', component: new CounterApp({}, 'CounterApp') },
+        { path: 'scopedCss', component: new ScopedCssApp({}, 'ScopedCssApp') },
+        { path: 'memory', component: new MemoryApp({}, 'MemoryApp') },
+        { path: 'tags', component: new TagsApp({}, 'TagsApp') },
+    ];
     let App = class App extends ViolComponent_1 {
         onRouteChange(route) {
-            return () => {
-                console.log('Route changed to:', route);
-                this.state.route = route;
-            };
+            console.log('Route changed to:', route);
         }
     };
     App = __decorate([
@@ -683,27 +813,14 @@
             template: ({ self }) => html_1 `
     <div class="p-8">
       <nav class="text-center">
-        ${routes.map(({ path, caption }) => new NavItem({
-            onClick: self.onRouteChange(path),
-            caption,
-        }))}
+        ${nav.map(({ path, caption }) => new NavItem({ path, caption }))}
       </nav>
       <main class="py-8">
-        <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900">
-          Go ahead and click one of those examples above (:
-        </p>
-        <template x-if="state.route === 'counter'">
-          ${new CounterApp({}, 'CounterApp')}
-        </template>
-        <template x-if="state.route === 'scopedCss'">
-          ${new ScopedCssApp({}, 'ScopedCssApp')}
-        </template>
-        <template x-if="state.route === 'memory'">
-          ${new MemoryApp({}, 'MemoryApp')}
-        </template>
-        <template x-if="state.route === 'tags'">
-          ${new TagsApp({}, 'TagsApp')}
-        </template>
+        ${new lib.RouterOutlet({
+            router: lib.syntheticRouter,
+            routes,
+            onRouteChange: self.onRouteChange,
+        })}
       </main>
     </div>
   `,
@@ -712,6 +829,9 @@
             },
         })
     ], App);
-    createApp_1(new App({}, 'DemoApp'), document.getElementById('root'));
+    const app = new App({}, 'DemoApp');
+    createApp_1(app, document.getElementById('root'), {
+        with: [lib.useSyntheticRouter],
+    });
 
 }());

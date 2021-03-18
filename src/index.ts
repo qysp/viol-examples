@@ -1,4 +1,5 @@
 import { ViolComponent, Component, createApp, html } from '@viol/core';
+import { syntheticRouter, RouterOutlet, Route, useSyntheticRouter } from '@viol/router';
 import { MemoryApp } from './CardGame/MemoryApp';
 import { CounterApp } from './Counter/CounterApp';
 import { NavItem } from './components/NavItem';
@@ -9,7 +10,7 @@ type AppState = {
   route: string;
 };
 
-const routes = [
+const nav = [
   { path: '', caption: 'Home' },
   { path: 'counter', caption: 'Counter' },
   { path: 'scopedCss', caption: 'Scoped CSS' },
@@ -17,31 +18,33 @@ const routes = [
   { path: 'tags', caption: 'Tags' },
 ];
 
+const routes: Route<App>[] = [
+  {
+    path: '',
+    template: `
+      <p class="text-center text-3xl font-bold text-gray-900">
+        Go ahead and click one of those examples above (:
+      </p>
+    `,
+  },
+  { path: 'counter', component: new CounterApp({}, 'CounterApp') },
+  { path: 'scopedCss', component: new ScopedCssApp({}, 'ScopedCssApp') },
+  { path: 'memory', component: new MemoryApp({}, 'MemoryApp') },
+  { path: 'tags', component: new TagsApp({}, 'TagsApp') },
+];
+
 @Component<App>({
   template: ({ self }) => html`
     <div class="p-8">
       <nav class="text-center">
-        ${routes.map(({ path, caption }) => new NavItem({
-          onClick: self.onRouteChange(path),
-          caption,
-        }))}
+        ${nav.map(({ path, caption }) => new NavItem({ path, caption }))}
       </nav>
       <main class="py-8">
-        <p x-show="state.route === ''" class="text-center text-3xl font-bold text-gray-900">
-          Go ahead and click one of those examples above (:
-        </p>
-        <template x-if="state.route === 'counter'">
-          ${new CounterApp({}, 'CounterApp')}
-        </template>
-        <template x-if="state.route === 'scopedCss'">
-          ${new ScopedCssApp({}, 'ScopedCssApp')}
-        </template>
-        <template x-if="state.route === 'memory'">
-          ${new MemoryApp({}, 'MemoryApp')}
-        </template>
-        <template x-if="state.route === 'tags'">
-          ${new TagsApp({}, 'TagsApp')}
-        </template>
+        ${new RouterOutlet({
+          router: syntheticRouter,
+          routes,
+          onRouteChange: self.onRouteChange,
+        })}
       </main>
     </div>
   `,
@@ -51,11 +54,11 @@ const routes = [
 })
 class App extends ViolComponent<AppState> {
   onRouteChange(route: string) {
-    return () => {
-      console.log('Route changed to:', route);
-      this.state.route = route;
-    }
+    console.log('Route changed to:', route);
   }
 }
 
-createApp(new App({}, 'DemoApp'), document.getElementById('root')!);
+const app = new App({}, 'DemoApp');
+createApp(app, document.getElementById('root')!, {
+  with: [useSyntheticRouter],
+});

@@ -1,17 +1,21 @@
 import { ViolComponent, Component } from '@viol/core';
+import { RouterLink } from '@viol/router';
 
 type NavItemProps = {
-  onClick: Function;
+  path: string;
   caption: string;
 };
 
 @Component({
   template: `
     <button
-      @click="props.onClick()"
       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mr-1"
       x-text="props.caption"
     ></button>
   `,
 })
-export class NavItem extends ViolComponent<{}, NavItemProps> { }
+export class NavItem extends ViolComponent<{}, NavItemProps> implements RouterLink {
+  get routerLink() {
+    return this.props.path;
+  }
+}

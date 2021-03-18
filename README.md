@@ -4,4 +4,4 @@ Examples using [Viol](https://github.com/qysp/viol).
 
 ## TODO
 
-* Actually style the examples and make them responsive
+- [ ] Actually style the examples and make them responsive
