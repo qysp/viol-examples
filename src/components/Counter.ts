@@ -15,11 +15,7 @@ type CounterProps = {
 
 @Component<Counter>({
   template: `
-    <button
-      x-text="state.time"
-      @click="onClick()"
-      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-    ></button>
+    <span x-text="state.time"></span>
   `,
   state: {
     intervalId: null,
@@ -27,24 +23,19 @@ type CounterProps = {
   },
 })
 export class Counter extends ViolComponent<CounterState, CounterProps> {
-  onClick() {
-    if (this.state.intervalId !== null) {
-      this.stop();
-      return;
-    } else if (this.state.time === 0) {
-      this.reset();
-    }
-    this.start();
+  onDestroy() {
+    this.reset();
   }
 
   start() {
+    if (this.state.intervalId !== null) {
+      this.stop();
+    }
     --this.state.time;
     this.state.intervalId = setInterval(() => {
       --this.state.time;
       if (this.state.time === 0) {
-        if (this.props.onDone !== undefined) {
-          this.props.onDone();
-        }
+        this.props.onDone?.();
         this.stop();
       }
     }, this.props.tickrate ?? 1000);
@@ -58,6 +49,11 @@ export class Counter extends ViolComponent<CounterState, CounterProps> {
   }
 
   reset() {
+    this.stop();
     this.state.time = 20;
+  }
+
+  get isActive() {
+    return this.state.intervalId !== null;
   }
 }

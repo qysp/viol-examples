@@ -13,7 +13,7 @@
     "@rollup/plugin-commonjs": "^17.1.0",
     "@rollup/plugin-node-resolve": "^11.2.0",
     "@rollup/plugin-typescript": "^8.2.0",
-    "@viol/core": "^0.0.3",
+    "@viol/core": "^0.1.2",
     "@viol/router": "^0.0.1",
     "rollup": "^2.40.0",
     "serve": "^11.3.2",

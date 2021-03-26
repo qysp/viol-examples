@@ -33,6 +33,29 @@
         });
     }
 
+    const callOnDestroy = (element) => {
+        var _a, _b;
+        (_b = (_a = element.__x.$data).onDestroy) === null || _b === void 0 ? void 0 : _b.call(_a);
+    };
+    const observedElements = new Set();
+    const onDestroyObserver = new MutationObserver((records) => {
+        for (const record of records) {
+            record.removedNodes.forEach((node) => {
+                if (observedElements.has(node)) {
+                    observedElements.delete(node);
+                }
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    const element = node;
+                    if (element.hasAttribute('x-name')) {
+                        callOnDestroy(element);
+                    }
+                    element.querySelectorAll('[x-name]').forEach((component) => {
+                        callOnDestroy(component);
+                    });
+                }
+            });
+        }
+    });
     const UidGenerator = (function* (id = 0) {
         while (++id)
             yield (id + Math.random()).toString(36);
@@ -46,6 +69,14 @@
     const createFragment = (html) => {
         const template = createElement('template', html);
         return template.content;
+    };
+    const observeOnDestroy = (component) => {
+        const parent = component.$el.parentElement;
+        if (parent === null || observedElements.has(parent)) {
+            return;
+        }
+        observedElements.add(parent);
+        onDestroyObserver.observe(parent, { childList: true });
     };
 
     const generateName = (component) => {
@@ -225,6 +256,9 @@
             const styleSheet = createElement('style', window.ViolStyles.join(''));
             document.head.appendChild(styleSheet);
             window.Alpine.onBeforeComponentInitialized((component) => {
+                if ((options === null || options === void 0 ? void 0 : options.emitOnDestroy) === true) {
+                    observeOnDestroy(component);
+                }
                 if (typeof component.$data.onInit === 'function') {
                     component.$data.onInit();
                 }
@@ -563,25 +597,20 @@
     ], RenderedIn);
 
     let Counter = class Counter extends ViolComponent_1 {
-        onClick() {
-            if (this.state.intervalId !== null) {
-                this.stop();
-                return;
-            }
-            else if (this.state.time === 0) {
-                this.reset();
-            }
-            this.start();
+        onDestroy() {
+            this.reset();
         }
         start() {
             var _a;
+            if (this.state.intervalId !== null) {
+                this.stop();
+            }
             --this.state.time;
             this.state.intervalId = setInterval(() => {
+                var _a, _b;
                 --this.state.time;
                 if (this.state.time === 0) {
-                    if (this.props.onDone !== undefined) {
-                        this.props.onDone();
-                    }
+                    (_b = (_a = this.props).onDone) === null || _b === void 0 ? void 0 : _b.call(_a);
                     this.stop();
                 }
             }, (_a = this.props.tickrate) !== null && _a !== void 0 ? _a : 1000);
@@ -593,17 +622,17 @@
             }
         }
         reset() {
+            this.stop();
             this.state.time = 20;
+        }
+        get isActive() {
+            return this.state.intervalId !== null;
         }
     };
     Counter = __decorate([
         Component_1({
             template: `
-    <button
-      x-text="state.time"
-      @click="onClick()"
-      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-    ></button>
+    <span x-text="state.time"></span>
   `,
             state: {
                 intervalId: null,
@@ -612,12 +641,36 @@
         })
     ], Counter);
 
+    const classes = [
+        'bg-transparent',
+        'hover:bg-blue-500',
+        'text-blue-700',
+        'font-semibold',
+        'hover:text-white',
+        'py-2',
+        'px-4',
+        'border',
+        'border-blue-500',
+        'hover:border-transparent',
+        'rounded',
+    ];
     let CounterApp = class CounterApp extends ViolComponent_1 {
         onInit() {
             console.log('Init: Counter App');
         }
         onAfterInit() {
             console.log('After Init: Counter App');
+        }
+        onClick(name) {
+            const counter = getComponent_1(name);
+            if (counter.state.intervalId !== null) {
+                counter.stop();
+                return;
+            }
+            else if (counter.state.time === 0) {
+                counter.reset();
+            }
+            counter.start();
         }
         onDone(name) {
             return () => alert(`${name} -> done!`);
@@ -632,13 +685,17 @@
         <p class="text-lg font-bold text-gray-900 my-4">
           Counter (1s interval)
         </p>
-        ${new Counter({ onDone: self.onDone('Counter 1') })}
+        <button @click="onClick('Counter1')" class="${classes.join(' ')}">
+          ${new Counter({ onDone: self.onDone('Counter 1') }, 'Counter1')}
+        </button>
       </div>
       <div>
         <p class="text-lg font-bold text-gray-900 my-4">
           Counter (.5s interval)
         </p>
-        ${new Counter({ onDone: self.onDone('Counter 2'), tickrate: 500 })}
+        <button @click="onClick('Counter2')" class="${classes.join(' ')}">
+          ${new Counter({ onDone: self.onDone('Counter 2'), tickrate: 500 }, 'Counter2')}
+        </button>
       </div>
     </div>
   `,
@@ -851,6 +908,7 @@
     ], App);
     createApp_1(new App({}, 'DemoApp'), document.getElementById('root'), {
         with: [lib.useSyntheticRouter],
+        emitOnDestroy: true,
     });
 
 }());
